@@ -10,10 +10,16 @@ const Overview = styled.div`
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   width: 25%;
   height: calc(100vh - 100px - 60px);
+
+  @media (max-width: 960px) {
+    width: 100%;
+  }
 `;
 
-const dimensions = {
-  width: (window.innerWidth - 100) * 0.25,
+let dimensions = {
+  width: window.matchMedia("(max-width: 960px)").matches
+    ? window.innerWidth - 100
+    : (window.innerWidth - 100) * 0.25,
   height: (window.innerHeight - 100 - 60) * 0.8
 };
 
@@ -27,7 +33,7 @@ const OverviewHead = styled.div`
 `;
 
 const Viz = styled.svg`
-  width: ${dimensions.width}px;
+  width: 100%;
   height: ${dimensions.height}px;
 `;
 
@@ -58,65 +64,60 @@ const LegendText = styled.p`
 `;
 
 const renderViz = wrapper => {
+  select(".bounds").remove();
+
   const data = [
     {
-      size: "6",
+      size: "XS",
       orders: {
         total: 16,
         pending: 13,
-        // processed: 3,
-        // prepared: 6,
         collected: 3
       },
       stock: 52
     },
     {
-      size: "7",
+      size: "S",
       orders: {
         total: 6,
         pending: 5,
-        // processed: 2,
-        // prepared: 2,
         collected: 1
       },
       stock: 33
     },
     {
-      size: "8",
+      size: "M",
       orders: {
         total: 24,
         pending: 24,
-        // processed: 6,
-        // prepared: 0,
         collected: 0
       },
       stock: 20
     },
     {
-      size: "9",
+      size: "L",
       orders: {
         total: 23,
         pending: 15,
-        // processed: 5,
-        // prepared: 5,
         collected: 8
       },
       stock: 12
     },
     {
-      size: "10",
+      size: "XL",
       orders: {
         total: 4,
         pending: 3,
-        // processed: 0,
-        // prepared: 0,
         collected: 1
       },
       stock: 22
     }
   ];
 
-  const bounds = wrapper.append("g").style("transform", "translateX(40px)");
+  const bounds = wrapper
+    .append("g")
+    .attr("class", "bounds")
+    .style("transform", "translateX(40px)");
 
   const dataGroups = bounds
     .selectAll("g")
@@ -128,19 +129,11 @@ const renderViz = wrapper => {
     max(data, d => d.stock)
   );
 
-  //   const scaleY = scaleLinear()
-  //     .domain([0, maxY])
-  //     .range([0, 200]);
-
-  //   const scaleX = scaleOrdinal()
-  //     .domain(["6", "7", "8", "9", "10"])
-  //     .range([100, 200, 300, 400, 500]);
-
   const scaleX = scaleLinear()
     .domain([0, maxVal])
     .range([0, dimensions.width - 80]);
   const scaleY = scaleOrdinal()
-    .domain(["6", "7", "8", "9", "10"])
+    .domain(["XS", "S", "M", "L", "XL"])
     .range([
       (1 / 6) * dimensions.height,
       (2 / 6) * dimensions.height,
@@ -165,28 +158,6 @@ const renderViz = wrapper => {
     .attr("height", (1 / 15) * dimensions.height)
     .attr("fill", "#bf18f7");
 
-  //   dataGroups
-  //     .append("rect")
-  //     .attr("x", 0)
-  //     .attr("y", d => scaleY(d.size) - (((1 / 15) * dimensions.height) / 3) * 2)
-  //     .attr(
-  //       "width",
-  //       d =>
-  //         scaleX(d.orders.pending) +
-  //         scaleX(d.orders.processed) +
-  //         scaleX(d.orders.prepared)
-  //     )
-  //     .attr("height", (1 / 15) * dimensions.height)
-  //     .attr("fill", "#bf18f7");
-
-  //   dataGroups
-  //     .append("rect")
-  //     .attr("x", 0)
-  //     .attr("y", d => scaleY(d.size) - (((1 / 15) * dimensions.height) / 3) * 2)
-  //     .attr("width", d => scaleX(d.orders.pending) + scaleX(d.orders.processed))
-  //     .attr("height", (1 / 15) * dimensions.height)
-  //     .attr("fill", "#e86b34");
-
   dataGroups
     .append("rect")
     .attr("x", 0)
@@ -194,14 +165,75 @@ const renderViz = wrapper => {
     .attr("width", d => scaleX(d.orders.pending))
     .attr("height", (1 / 15) * dimensions.height)
     .attr("fill", "#f7bb18");
+
+  dataGroups
+    .append("text")
+    .attr("text-anchor", "middle")
+    .text(d => d.size)
+    .attr("x", -20)
+    .attr("y", d => scaleY(d.size) + 10)
+    .attr("font-family", "var(--font-primary)")
+    .attr("font-size", "16px")
+    .attr("font-weight", "600")
+    .attr("fill", "var(--color-text)")
+    .attr("pointer-events", "none");
+
+  dataGroups
+    .append("text")
+    .attr("text-anchor", "middle")
+    .text(d => d.stock)
+    .attr("x", d => scaleX(d.stock) + 15)
+    .attr("y", d => scaleY(d.size) + 20)
+    .attr("font-family", "var(--font-primary)")
+    .attr("font-size", "16px")
+    .attr("font-weight", "600")
+    .attr("fill", "var(--color-text)")
+    .attr("pointer-events", "none");
 };
 
 const OverviewComp = () => {
   const d3Ref = useRef(null);
 
-  useEffect(() => {
+  const onWindowResize = () => {
+    // if (window.innerWidth > 768) {
+    //   width =
+    //     window.innerWidth * 0.6 - 100 > window.innerHeight - 100
+    //       ? window.innerHeight - 100
+    //       : window.innerWidth * 0.6 - 100;
+    //   height = width;
+    //   widthOffset = window.innerWidth * 0.6 - width;
+    //   heightOffset = window.innerHeight - height;
+    // } else {
+    //   width = window.innerWidth - 40;
+    //   height = width;
+    //   widthOffset = 40;
+    //   heightOffset = 0;
+    // }
+
+    dimensions = {
+      width: window.matchMedia("(max-width: 960px)").matches
+        ? window.innerWidth - 100
+        : (window.innerWidth - 100) * 0.25,
+      height: (window.innerHeight - 100 - 60) * 0.8
+    };
+
     renderViz(select(d3Ref.current));
+    // renderViz(select(d3Ref.current), metric, region, setRegion, data);
+  };
+
+  useEffect(() => {
+    onWindowResize();
+
+    window.addEventListener("resize", onWindowResize);
+
+    return () => {
+      window.removeEventListener("resize", onWindowResize);
+    };
   }, []);
+
+  //   useEffect(() => {
+  //     renderViz(select(d3Ref.current));
+  //   }, []);
 
   return (
     <Overview>
@@ -212,14 +244,6 @@ const OverviewComp = () => {
           <LegendBadge color="#f7bb18" />
           <LegendText>Pending</LegendText>
         </LegendItem>
-        {/* <LegendItem>
-          <LegendBadge color="#e86b34" />
-          <LegendText>Processed</LegendText>
-        </LegendItem>
-        <LegendItem>
-          <LegendBadge color="#bf18f7" />
-          <LegendText>Prepared</LegendText>
-        </LegendItem> */}
         <LegendItem>
           <LegendBadge color="#bf18f7" />
           <LegendText>Collected</LegendText>

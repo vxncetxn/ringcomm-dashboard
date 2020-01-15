@@ -4,14 +4,12 @@ const Defaults = createGlobalStyle`
     :root {
       --font-primary: "Montserrat";
     
-      --color-background: #f0f4f8;
       --color-background: #060b29;
-      --color-element: #ffffff;
       --color-element: #0d1633;
-      --color-text: #000000;
-      --color-text: #ffffff;
       --color-text: #aebcea;
-      --color-accent: #5d55fa;
+      --color-accent-pending: #bf18f7;
+      --color-accent-collected: #f7bb18;
+      --color-accent-stock: #184ff7;
     }
 
     * {
@@ -47,6 +45,28 @@ const Defaults = createGlobalStyle`
     a {
       color: inherit;
       text-decoration: none;
+    }
+
+    .non-mobile {
+      @media (max-width: 960px) {
+        display: none;
+      }
+    }
+
+    #search-icon {
+      position: absolute;
+      left: 13px;
+      top: 7.5px;
+      width: 17.5px;
+    }
+
+    #hamburger-icon {
+      width: 20px;
+      display: none;
+
+      @media (max-width: 960px) {
+        display: block;
+      }
     }
 `;
 
