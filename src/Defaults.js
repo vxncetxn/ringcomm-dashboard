@@ -10,6 +10,7 @@ const Defaults = createGlobalStyle`
       --color-accent-pending: #bf18f7;
       --color-accent-collected: #f7bb18;
       --color-accent-stock: #184ff7;
+      --color-warning: #b11b1b;
     }
 
     * {
@@ -51,13 +52,6 @@ const Defaults = createGlobalStyle`
       @media (max-width: 960px) {
         display: none;
       }
-    }
-
-    #search-icon {
-      position: absolute;
-      left: 13px;
-      top: 7.5px;
-      width: 17.5px;
     }
 
     #hamburger-icon {

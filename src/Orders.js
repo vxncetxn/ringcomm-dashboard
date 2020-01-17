@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
+import { ReactComponent as MenuDotsIcon } from "./icons/menu-dots.svg";
+import { ReactComponent as EditIcon } from "./icons/edit.svg";
+import { ReactComponent as EmailIcon } from "./icons/email.svg";
+import { ReactComponent as ArchiveIcon } from "./icons/archive.svg";
+import { ReactComponent as DeleteIcon } from "./icons/delete.svg";
+
 const Orders = styled.div`
   display: flex;
   flex-direction: column;
@@ -22,7 +28,7 @@ const Orders = styled.div`
 
 const OrdersHead = styled.div`
   display: grid;
-  grid-template-columns: 5% 40% 20% 15% 15%;
+  grid-template-columns: 5% 50% 20% 15% 10%;
   font-family: var(--font-primary);
   font-size: 16px;
   color: #5d79d5;
@@ -71,7 +77,7 @@ const OrdersItem = styled.div``;
 
 const OrdersItemTrigger = styled.div`
   display: grid;
-  grid-template-columns: 5% 40% 20% 15% 15%;
+  grid-template-columns: 5% 50% 20% 15% 10%;
   font-family: var(--font-primary);
   font-size: 16px;
   color: var(--color-text);
@@ -83,6 +89,10 @@ const OrdersItemTrigger = styled.div`
     background-color: #152351;
   }
 
+  & input[type="checkbox"]:checked {
+    background-color: #152351;
+  }
+
   & > p {
     padding: 15px;
     pointer-events: none;
@@ -90,6 +100,7 @@ const OrdersItemTrigger = styled.div`
 `;
 
 const OrdersItemPanel = styled.div`
+  position: relative;
   max-height: 0;
   overflow: hidden;
   display: none;
@@ -104,11 +115,11 @@ const OrdersItemPanel = styled.div`
     margin-top: 20px;
   }
 
-  & > div:first-child {
+  & > div:first-of-type {
     margin-top: 20px;
   }
 
-  & > div:last-child {
+  & > div:last-of-type {
     margin-bottom: 20px;
   }
 
@@ -118,6 +129,14 @@ const OrdersItemPanel = styled.div`
 
   & > div > p {
     display: inline;
+  }
+
+  & > div > button > svg {
+    margin-right: 10px;
+  }
+
+  & > div > button + button {
+    margin-left: 20px;
   }
 `;
 
@@ -133,10 +152,99 @@ const StatusBadge = styled.span`
       : "var(--color-accent-collected)"};
 `;
 
+const ActionsMenu = styled.ul`
+  display: none;
+  position: absolute;
+  top: 35px;
+  right: 25px;
+  border-radius: 10px;
+  border: 1px solid #5d79d5;
+  background-color: var(--color-element);
+
+  & > li:first-of-type {
+    border-radius: 10px 10px 0 0;
+  }
+
+  & > li:last-of-type {
+    border-radius: 0 0 10px 10px;
+  }
+
+  & > li:hover {
+    background-color: #5d79d5;
+  }
+
+  & > li + li {
+    border-top: 1px solid #5d79d5;
+  }
+
+  & > li > button {
+    width: 100%;
+    text-align: left;
+    padding: 5px 10px;
+  }
+
+  & svg {
+    margin-right: 10px;
+  }
+`;
+
+const ActionButton = styled.button`
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-family: var(--font-primary);
+  font-size: 16px;
+  color: var(--color-text);
+  border: 1px solid #5d79d5;
+
+  &:hover {
+    background-color: #5d79d5;
+  }
+`;
+
+const DeleteButton = styled(ActionButton)`
+  &:hover {
+    border: 1px solid var(--color-warning);
+    background-color: var(--color-warning);
+  }
+`;
+
+const StyledMenuDotsIcon = styled(MenuDotsIcon)`
+  position: absolute;
+  top: 10px;
+  right: 30px;
+  fill: var(--color-text);
+  width: 20px;
+  height: 20px;
+`;
+
+const StyledEditIcon = styled(EditIcon)`
+  fill: var(--color-text);
+  width: 13px;
+  height: 13px;
+`;
+
+const StyledEmailIcon = styled(EmailIcon)`
+  fill: var(--color-text);
+  width: 13px;
+  height: 13px;
+`;
+
+const StyledArchiveIcon = styled(ArchiveIcon)`
+  fill: var(--color-text);
+  width: 13px;
+  height: 13px;
+`;
+
+const StyledDeleteIcon = styled(DeleteIcon)`
+  fill: var(--color-text);
+  width: 13px;
+  height: 13px;
+`;
+
 const toggleAccordion = e => {
   const trigger = e.target;
   const panel = document.getElementById(e.target.getAttribute("aria-controls"));
-  const arrow = trigger.firstChild;
+  const arrow = trigger.lastChild;
 
   if (trigger.getAttribute("aria-expanded") === "false") {
     trigger.setAttribute("aria-expanded", "true");
@@ -144,7 +252,7 @@ const toggleAccordion = e => {
     panel.style.display = "flex";
     setTimeout(() => {
       panel.style.maxHeight = "300px";
-      arrow.style.transform = "rotate(-180deg)";
+      arrow.style.transform = "rotate(180deg)";
     }, 100);
   } else {
     trigger.setAttribute("aria-expanded", "false");
@@ -157,10 +265,25 @@ const toggleAccordion = e => {
   }
 };
 
+const toggleActionsMenu = menuID => {
+  const menu = document.getElementById(menuID);
+
+  if (menu.style.display === "block") {
+    menu.style.display = "none";
+  } else {
+    menu.style.display = "block";
+  }
+};
+
 const OrdersComp = ({ ordersData }) => {
   const [numEntries, setNumEntries] = useState(10);
   const [numPages, setNumPages] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [checked, setChecked] = useState([]);
+
+  useEffect(() => {
+    console.log("checked: ", checked);
+  }, [checked]);
 
   const changePage = option => {
     if (option === "next") {
@@ -174,6 +297,30 @@ const OrdersComp = ({ ordersData }) => {
     }
   };
 
+  const checkAllOrders = checkedVal => {
+    if (checkedVal) {
+      document
+        .querySelectorAll(".order-item-checkbox")
+        .forEach(checkbox => (checkbox.checked = true));
+      setChecked(ordersData);
+    } else {
+      document
+        .querySelectorAll(".order-item-checkbox")
+        .forEach(checkbox => (checkbox.checked = false));
+      setChecked([]);
+    }
+  };
+
+  const checkOrder = (e, order) => {
+    e.stopPropagation();
+    const checkedVal = e.target.checked;
+    if (checkedVal) {
+      setChecked([...checked, order]);
+    } else {
+      setChecked(checked.filter(o => o.orderID !== order.orderID));
+    }
+  };
+
   useEffect(() => {
     setNumPages(Math.ceil(ordersData.length / numEntries));
   }, [numEntries]);
@@ -181,11 +328,16 @@ const OrdersComp = ({ ordersData }) => {
   return (
     <Orders>
       <OrdersHead>
-        <p></p>
+        <p>
+          <input
+            type="checkbox"
+            onClick={e => checkAllOrders(e.target.checked)}
+          ></input>
+        </p>
         <p>Name</p>
         <p>Student ID</p>
-        <p>Size</p>
         <p>Status</p>
+        <p></p>
       </OrdersHead>
       <OrdersList>
         {ordersData
@@ -202,6 +354,21 @@ const OrdersComp = ({ ordersData }) => {
                   id={`trigger-${idx}`}
                   onClick={e => toggleAccordion(e)}
                 >
+                  <p>
+                    <input
+                      type="checkbox"
+                      className="order-item-checkbox"
+                      style={{
+                        pointerEvents: "auto"
+                      }}
+                      onClick={e => checkOrder(e, order)}
+                    ></input>
+                  </p>
+                  <p>{order.name}</p>
+                  <p>{order.studentID}</p>
+                  <p>
+                    <StatusBadge>{order.status}</StatusBadge>
+                  </p>
                   <p
                     style={{
                       textAlign: "center",
@@ -210,25 +377,50 @@ const OrdersComp = ({ ordersData }) => {
                   >
                     ▾
                   </p>
-                  <p>{order.name}</p>
-                  <p>{order.id}</p>
-                  <p>{order.size}</p>
-                  <p>
-                    <StatusBadge>{order.status}</StatusBadge>
-                  </p>
                 </OrdersItemTrigger>
                 <OrdersItemPanel
                   id={`panel-${idx}`}
                   role="region"
                   aria-labelledby={`trigger-${idx}`}
                 >
+                  <button>
+                    <StyledMenuDotsIcon
+                      onClick={() => toggleActionsMenu(`action-menu-${idx}`)}
+                    />
+                  </button>
+                  <ActionsMenu id={`action-menu-${idx}`}>
+                    <li>
+                      <button>
+                        <StyledEditIcon />
+                        Edit
+                      </button>
+                    </li>
+                    <li>
+                      <button>
+                        <StyledEmailIcon />
+                        Send Email
+                      </button>
+                    </li>
+                    <li>
+                      <button>
+                        <StyledArchiveIcon />
+                        Archive
+                      </button>
+                    </li>
+                    <li>
+                      <button>
+                        <StyledDeleteIcon />
+                        Delete
+                      </button>
+                    </li>
+                  </ActionsMenu>
                   <div>
                     <span>Name: </span>
                     <p>{order.name}</p>
                   </div>
                   <div>
                     <span>Student ID: </span>
-                    <p>{order.id}</p>
+                    <p>{order.studentID}</p>
                   </div>
                   <div>
                     <span>Email: </span>
