@@ -3,13 +3,60 @@ import { createGlobalStyle } from "styled-components";
 const Defaults = createGlobalStyle`
     :root {
       --font-primary: "Montserrat";
-    
-      --color-background: #060b29;
-      --color-element: #0d1633;
-      --color-text: #aebcea;
-      --color-accent-pending: #bf18f7;
-      --color-accent-collected: #f7bb18;
+
+      --color-50: #5058af;
+
+      // --color-10
+      --color-background: #101223;
+
+      // --color-15
+      --color-element-dark: #181a34;
+
+      // --color-20
+      --color-element-light: #202346;
+
+      --color-navbar: #181a34;
+
+      // --color-80
+      --color-text: #b9bcdf;
+      --color-navbar-text: #b9bcdf;
+
+      // --color-65
+      --color-accent-main: #858ac7;
+
+      --color-accent-pending: #f7bb18;
+      --color-accent-processed: #bf18f7;
+      --color-accent-collected: #40b11b;
       --color-accent-stock: #184ff7;
+      --color-warning: #b11b1b;
+    }
+
+    [theme="light"] {    
+      // --color-black-95
+      --color-background: #f2f2f2;
+
+      // --color-black-100
+      --color-element-dark: #ffffff;
+
+      // --color-black-97
+      --color-element-light: #f7f7f7;
+
+      // --color-50
+      --color-navbar: #5058af;
+
+      // --color-30
+      --color-text: #303569;
+
+      // --color-90
+      --color-navbar-text: #dcdeef;
+
+      // --color-55
+      --color-accent-main: #6269b7;
+
+      --color-accent-pending: #f5d63d;
+      --color-accent-processed: #d477d4;
+      --color-accent-collected: #77d477;
+      --color-accent-stock: #778fd4;
       --color-warning: #b11b1b;
     }
 
@@ -27,6 +74,7 @@ const Defaults = createGlobalStyle`
       position: relative;
       background-color: var(--color-background);
       overflow-x: hidden;
+      transition: background-color 0.5s ease-out;
     }
 
     ul {

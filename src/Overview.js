@@ -5,11 +5,12 @@ import { max } from "d3-array";
 import { scaleLinear, scaleOrdinal } from "d3-scale";
 
 const Overview = styled.div`
-  background-color: var(--color-element);
+  background-color: var(--color-element-dark);
   border-radius: 10px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   width: 25%;
   height: calc(100vh - 100px - 60px);
+  transition: background-color 0.5s ease-out;
 
   @media (max-width: 960px) {
     width: 100%;
@@ -26,10 +27,11 @@ let dimensions = {
 const OverviewHead = styled.div`
   font-family: var(--font-primary);
   font-size: 16px;
-  color: #5d79d5;
+  color: var(--color-accent-main);
   padding: 15px;
   border-radius: 10px 10px 0 0;
-  background-color: #152351;
+  background-color: var(--color-element-light);
+  transition: background-color 0.5s ease-out;
 `;
 
 const Viz = styled.svg`
@@ -63,56 +65,61 @@ const LegendText = styled.p`
   margin-left: 5px;
 `;
 
-const renderViz = wrapper => {
+const renderViz = (wrapper, data) => {
   select(".bounds").remove();
 
-  const data = [
-    {
-      size: "XS",
-      orders: {
-        total: 16,
-        pending: 13,
-        collected: 3
-      },
-      stock: 52
-    },
-    {
-      size: "S",
-      orders: {
-        total: 6,
-        pending: 5,
-        collected: 1
-      },
-      stock: 33
-    },
-    {
-      size: "M",
-      orders: {
-        total: 24,
-        pending: 24,
-        collected: 0
-      },
-      stock: 20
-    },
-    {
-      size: "L",
-      orders: {
-        total: 23,
-        pending: 15,
-        collected: 8
-      },
-      stock: 12
-    },
-    {
-      size: "XL",
-      orders: {
-        total: 4,
-        pending: 3,
-        collected: 1
-      },
-      stock: 22
-    }
-  ];
+  // const data = [
+  //   {
+  //     size: "XS",
+  //     orders: {
+  //       total: 16,
+  //       pending: 2,
+  //       processed: 11,
+  //       collected: 3
+  //     },
+  //     stock: 52
+  //   },
+  //   {
+  //     size: "S",
+  //     orders: {
+  //       total: 6,
+  //       pending: 0,
+  //       processed: 5,
+  //       collected: 1
+  //     },
+  //     stock: 33
+  //   },
+  //   {
+  //     size: "M",
+  //     orders: {
+  //       total: 24,
+  //       pending: 4,
+  //       processed: 20,
+  //       collected: 0
+  //     },
+  //     stock: 20
+  //   },
+  //   {
+  //     size: "L",
+  //     orders: {
+  //       total: 23,
+  //       pending: 5,
+  //       processed: 10,
+  //       collected: 8
+  //     },
+  //     stock: 12
+  //   },
+  //   {
+  //     size: "XL",
+  //     orders: {
+  //       total: 4,
+  //       pending: 1,
+  //       processed: 2,
+  //       collected: 1
+  //     },
+  //     stock: 22
+  //   }
+  // ];
 
   const bounds = wrapper
     .append("g")
@@ -125,7 +132,7 @@ const renderViz = wrapper => {
     .join("g");
 
   const maxVal = Math.max(
-    max(data, d => d.orders.total),
+    max(data, d => d.orders.Total),
     max(data, d => d.stock)
   );
 
@@ -133,13 +140,14 @@ const renderViz = wrapper => {
     .domain([0, maxVal])
     .range([0, dimensions.width - 80]);
   const scaleY = scaleOrdinal()
-    .domain(["XS", "S", "M", "L", "XL"])
+    .domain(["B08", "R07", "R08", "R09", "R10", "R11"])
     .range([
-      (1 / 6) * dimensions.height,
-      (2 / 6) * dimensions.height,
-      (3 / 6) * dimensions.height,
-      (4 / 6) * dimensions.height,
-      (5 / 6) * dimensions.height
+      (1 / 7) * dimensions.height,
+      (2 / 7) * dimensions.height,
+      (3 / 7) * dimensions.height,
+      (4 / 7) * dimensions.height,
+      (5 / 7) * dimensions.height,
+      (6 / 7) * dimensions.height
     ]);
 
   dataGroups
@@ -148,32 +156,46 @@ const renderViz = wrapper => {
     .attr("y", d => scaleY(d.size))
     .attr("width", d => scaleX(d.stock))
     .attr("height", (1 / 15) * dimensions.height)
-    .attr("fill", "#184ff7");
+    .attr("fill", "var(--color-accent-stock)");
 
   dataGroups
     .append("rect")
     .attr("x", 0)
     .attr("y", d => scaleY(d.size) - (((1 / 15) * dimensions.height) / 3) * 2)
-    .attr("width", d => scaleX(d.orders.pending) + scaleX(d.orders.collected))
+    .attr(
+      "width",
+      d =>
+        scaleX(d.orders.Pending) +
+        scaleX(d.orders.Processed) +
+        scaleX(d.orders.Collected)
+    )
     .attr("height", (1 / 15) * dimensions.height)
-    .attr("fill", "#bf18f7");
+    .attr("fill", "var(--color-accent-collected)");
 
   dataGroups
     .append("rect")
     .attr("x", 0)
     .attr("y", d => scaleY(d.size) - (((1 / 15) * dimensions.height) / 3) * 2)
-    .attr("width", d => scaleX(d.orders.pending))
+    .attr("width", d => scaleX(d.orders.Pending) + scaleX(d.orders.Processed))
     .attr("height", (1 / 15) * dimensions.height)
-    .attr("fill", "#f7bb18");
+    .attr("fill", "var(--color-accent-processed)");
+
+  dataGroups
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", d => scaleY(d.size) - (((1 / 15) * dimensions.height) / 3) * 2)
+    .attr("width", d => scaleX(d.orders.Pending))
+    .attr("height", (1 / 15) * dimensions.height)
+    .attr("fill", "var(--color-accent-pending)");
 
   dataGroups
     .append("text")
     .attr("text-anchor", "middle")
     .text(d => d.size)
     .attr("x", -20)
-    .attr("y", d => scaleY(d.size) + 10)
+    .attr("y", d => scaleY(d.size) + 20)
     .attr("font-family", "var(--font-primary)")
-    .attr("font-size", "16px")
+    .attr("font-size", "12px")
     .attr("font-weight", "600")
     .attr("fill", "var(--color-text)")
     .attr("pointer-events", "none");
@@ -185,31 +207,16 @@ const renderViz = wrapper => {
     .attr("x", d => scaleX(d.stock) + 15)
     .attr("y", d => scaleY(d.size) + 20)
     .attr("font-family", "var(--font-primary)")
-    .attr("font-size", "16px")
+    .attr("font-size", "12px")
     .attr("font-weight", "600")
     .attr("fill", "var(--color-text)")
     .attr("pointer-events", "none");
 };
 
-const OverviewComp = () => {
+const OverviewComp = ({ processedInventory }) => {
   const d3Ref = useRef(null);
 
   const onWindowResize = () => {
-    // if (window.innerWidth > 768) {
-    //   width =
-    //     window.innerWidth * 0.6 - 100 > window.innerHeight - 100
-    //       ? window.innerHeight - 100
-    //       : window.innerWidth * 0.6 - 100;
-    //   height = width;
-    //   widthOffset = window.innerWidth * 0.6 - width;
-    //   heightOffset = window.innerHeight - height;
-    // } else {
-    //   width = window.innerWidth - 40;
-    //   height = width;
-    //   widthOffset = 40;
-    //   heightOffset = 0;
-    // }
-
     dimensions = {
       width: window.matchMedia("(max-width: 960px)").matches
         ? window.innerWidth - 100
@@ -217,8 +224,7 @@ const OverviewComp = () => {
       height: (window.innerHeight - 100 - 60) * 0.8
     };
 
-    renderViz(select(d3Ref.current));
-    // renderViz(select(d3Ref.current), metric, region, setRegion, data);
+    renderViz(select(d3Ref.current), processedInventory);
   };
 
   useEffect(() => {
@@ -229,27 +235,27 @@ const OverviewComp = () => {
     return () => {
       window.removeEventListener("resize", onWindowResize);
     };
-  }, []);
-
-  //   useEffect(() => {
-  //     renderViz(select(d3Ref.current));
-  //   }, []);
+  }, [processedInventory]);
 
   return (
     <Overview>
-      <OverviewHead>Overview</OverviewHead>
+      <OverviewHead>Inventory</OverviewHead>
       <Viz ref={d3Ref} />
       <Legend>
         <LegendItem>
-          <LegendBadge color="#f7bb18" />
+          <LegendBadge color="var(--color-accent-pending)" />
           <LegendText>Pending</LegendText>
         </LegendItem>
         <LegendItem>
-          <LegendBadge color="#bf18f7" />
+          <LegendBadge color="var(--color-accent-processed)" />
+          <LegendText>Processed</LegendText>
+        </LegendItem>
+        <LegendItem>
+          <LegendBadge color="var(--color-accent-collected)" />
           <LegendText>Collected</LegendText>
         </LegendItem>
         <LegendItem>
-          <LegendBadge color="#184ff7" />
+          <LegendBadge color="var(--color-accent-stock)" />
           <LegendText>Stock</LegendText>
         </LegendItem>
       </Legend>
