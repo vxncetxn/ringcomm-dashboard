@@ -4,22 +4,35 @@ import styled from "styled-components";
 import ky from "ky";
 import { format } from "date-fns";
 
-import Checkbox from "./Checkbox";
+import Checkbox from "./components/Checkbox";
 import Confirmation from "./Confirmation";
 
 import { ReactComponent as MenuDotsIcon } from "./icons/menu-dots.svg";
-import { ReactComponent as EditIcon } from "./icons/edit.svg";
 import { ReactComponent as EmailIcon } from "./icons/email.svg";
-import { ReactComponent as ArchiveIcon } from "./icons/archive.svg";
+import { ReactComponent as EditIcon } from "./icons/edit.svg";
+// import { ReactComponent as ArchiveIcon } from "./icons/archive.svg";
 import { ReactComponent as DeleteIcon } from "./icons/delete.svg";
 
-const OrdersItem = styled.div``;
+const OrdersItem = styled.div`
+  font-family: var(--font-primary);
+  font-size: 22px;
+
+  @media (max-width: 1440px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 630px) {
+    font-size: 14px;
+  }
+
+  @media (max-width: 520px) {
+    font-size: 12px;
+  }
+`;
 
 const OrdersItemTrigger = styled.div`
   display: grid;
-  grid-template-columns: 5% 10% 40% 20% 15% 10%;
-  font-family: var(--font-primary);
-  font-size: 16px;
+  grid-template-columns: 5% 15% 30% 20% 20% 10%;
   color: var(--color-text);
 
   width: 100%;
@@ -35,8 +48,26 @@ const OrdersItemTrigger = styled.div`
   }
 
   & > p {
-    padding: 15px;
+    padding: 18px;
     pointer-events: none;
+  }
+
+  @media (max-width: 1440px) {
+    & > p {
+      padding: 15px;
+    }
+  }
+
+  @media (max-width: 630px) {
+    & > p {
+      padding: 12px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    & > p {
+      padding: 7px;
+    }
   }
 `;
 
@@ -46,8 +77,6 @@ const OrdersItemPanel = styled.div`
   overflow: hidden;
   display: none;
   flex-direction: column;
-  font-family: var(--font-primary);
-  font-size: 16px;
   color: var(--color-text);
   padding: 0 calc(5% + 15px);
   transition: max-height 0.5s ease-out;
@@ -84,8 +113,6 @@ const OrdersItemPanel = styled.div`
 const StatusBadge = styled.span`
   padding: 5px;
   border-radius: 10px;
-  font-family: var(--font-primary);
-  font-size: 16px;
   color: white;
   background-color: ${props =>
     props.children === "Pending"
@@ -162,23 +189,23 @@ const StyledMenuDotsIcon = styled(MenuDotsIcon)`
   height: 20px;
 `;
 
-const StyledEditIcon = styled(EditIcon)`
-  fill: var(--color-text);
-  width: 13px;
-  height: 13px;
-`;
-
 const StyledEmailIcon = styled(EmailIcon)`
   fill: var(--color-text);
   width: 13px;
   height: 13px;
 `;
 
-const StyledArchiveIcon = styled(ArchiveIcon)`
+const StyledEditIcon = styled(EditIcon)`
   fill: var(--color-text);
   width: 13px;
   height: 13px;
 `;
+
+// const StyledArchiveIcon = styled(ArchiveIcon)`
+//   fill: var(--color-text);
+//   width: 13px;
+//   height: 13px;
+// `;
 
 const StyledDeleteIcon = styled(DeleteIcon)`
   fill: var(--color-text);
@@ -196,7 +223,7 @@ const toggleAccordion = e => {
     trigger.style.backgroundColor = "var(--color-element-light)";
     panel.style.display = "flex";
     setTimeout(() => {
-      panel.style.maxHeight = "300px";
+      panel.style.maxHeight = "50vh";
       arrow.style.transform = "rotate(180deg)";
     }, 100);
   } else {
@@ -303,22 +330,22 @@ const OrdersItemComp = ({
         <ActionsMenu id={`action-menu-${idx}`}>
           <li>
             <button>
-              <StyledEditIcon />
-              Edit
-            </button>
-          </li>
-          <li>
-            <button>
               <StyledEmailIcon />
               Send Email
             </button>
           </li>
           <li>
             <button>
+              <StyledEditIcon />
+              Edit
+            </button>
+          </li>
+          {/* <li>
+            <button>
               <StyledArchiveIcon />
               Archive
             </button>
-          </li>
+          </li> */}
           <li>
             <button onClick={() => setConfirmationOpen(true)}>
               <StyledDeleteIcon />
@@ -359,8 +386,12 @@ const OrdersItemComp = ({
           <p>{format(new Date(order.submitDate), "do MMMM yyyy, h:mma")}</p>
         </div>
         <div>
-          <span>Size: </span>
-          <p>{order.size}</p>
+          <span>Products: </span>
+          <p>
+            {order.products.length > 1
+              ? order.products.map(product => `${product.name}, `)
+              : order.products[0].name}
+          </p>
         </div>
         <div>
           <span>Status: </span>

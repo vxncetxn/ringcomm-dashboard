@@ -32,14 +32,14 @@ const Defaults = createGlobalStyle`
     }
 
     [theme="light"] {    
-      // --color-black-95
-      --color-background: #f2f2f2;
+      // --color-black-97
+      --color-background: #f7f7f7;
 
       // --color-black-100
       --color-element-dark: #ffffff;
 
-      // --color-black-97
-      --color-element-light: #f7f7f7;
+      // --color-black-93
+      --color-element-light: #eeeef7;
 
       // --color-50
       --color-navbar: #5058af;
@@ -50,8 +50,8 @@ const Defaults = createGlobalStyle`
       // --color-90
       --color-navbar-text: #dcdeef;
 
-      // --color-55
-      --color-accent-main: #6269b7;
+      // --color-50
+      --color-accent-main: #5058af;
 
       --color-accent-pending: #f5d63d;
       --color-accent-processed: #d477d4;

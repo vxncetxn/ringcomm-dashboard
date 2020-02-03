@@ -8,12 +8,16 @@ const Main = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 50px;
+  height: calc(100vh - 60px);
+  max-width: 1920px;
+  margin: 0 auto;
 
   @media (max-width: 960px) {
+    height: auto;
     flex-direction: column-reverse;
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 520px) {
     padding: 50px 20px;
   }
 `;
@@ -21,6 +25,7 @@ const Main = styled.div`
 const MainComp = ({
   orders,
   setOrders,
+  setInventory,
   processedOrders,
   processedInventory,
   sortCriteria,
@@ -35,7 +40,10 @@ const MainComp = ({
         sortCriteria={sortCriteria}
         setSortCriteria={setSortCriteria}
       />
-      <Overview processedInventory={processedInventory} />
+      <Overview
+        setInventory={setInventory}
+        processedInventory={processedInventory}
+      />
     </Main>
   );
 };

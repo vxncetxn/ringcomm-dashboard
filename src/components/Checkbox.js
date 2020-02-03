@@ -6,6 +6,16 @@ const CheckboxWrapper = styled.div`
   position: relative;
   width: 20px;
   height: 20px;
+
+  @media (max-width: 630px) {
+    width: 16px;
+    height: 16px;
+  }
+
+  @media (max-width: 520px) {
+    width: 12px;
+    height: 12px;
+  }
 `;
 
 const CheckboxInput = styled.input`
@@ -23,8 +33,9 @@ const CheckboxInput = styled.input`
     background: var(--color-text);
     width: 2px;
     height: 2px;
-    box-shadow: 2px 0 0 white, 4px 0 0 white, 4px -2px 0 white, 4px -4px 0 white,
-      4px -6px 0 white, 4px -8px 0 white;
+    box-shadow: 2px 0 0 var(--color-text), 4px 0 0 var(--color-text),
+      4px -2px 0 var(--color-text), 4px -4px 0 var(--color-text),
+      4px -6px 0 var(--color-text), 4px -8px 0 var(--color-text);
     transform: rotate(45deg);
   }
 `;
@@ -39,9 +50,9 @@ const Checkbox = styled.div`
   pointer-events: none;
 `;
 
-const CheckboxComp = ({ className, style, name, checked, onChange }) => {
+const CheckboxComp = ({ name, checked, onChange, ...others }) => {
   return (
-    <CheckboxWrapper className={className} style={style}>
+    <CheckboxWrapper {...others}>
       <CheckboxInput
         type="checkbox"
         id={name}

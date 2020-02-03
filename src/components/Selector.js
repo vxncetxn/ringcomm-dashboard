@@ -34,9 +34,9 @@ const SelectorArrow = styled.span`
   pointer-events: none;
 `;
 
-const SelectorComp = ({ className, style, options, name, value, onChange }) => {
+const SelectorComp = ({ options, name, value, onChange, ...others }) => {
   return (
-    <SelectorWrapper className={className} style={style}>
+    <SelectorWrapper {...others}>
       <Selector id={name} name={name} value={value} onChange={onChange}>
         {options.map(o => {
           return (

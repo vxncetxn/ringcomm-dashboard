@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 import OrdersItem from "./OrdersItem";
-import Checkbox from "./Checkbox";
+import Checkbox from "./components/Checkbox";
+import OrdersItemShimmer from "./OrdersItemShimmer";
 
 import { ReactComponent as SortIcon } from "./icons/sort.svg";
 
@@ -14,6 +15,7 @@ const Orders = styled.div`
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   width: 70%;
   height: calc(100vh - 100px - 60px);
+  height: 100%;
   transition: background-color 0.5s ease-out;
 
   & > li:last-child {
@@ -28,9 +30,9 @@ const Orders = styled.div`
 
 const OrdersHead = styled.div`
   display: grid;
-  grid-template-columns: 5% 10% 40% 20% 15% 10%;
+  grid-template-columns: 5% 15% 30% 20% 20% 10%;
   font-family: var(--font-primary);
-  font-size: 16px;
+  font-size: 22px;
   color: var(--color-accent-main);
   border-radius: 10px 10px 0 0;
   background-color: var(--color-element-light);
@@ -51,11 +53,33 @@ const OrdersHead = styled.div`
   & > div > p {
     display: inline-block;
   }
+
+  @media (max-width: 1440px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 630px) {
+    font-size: 14px;
+
+    & > div,
+    & > button {
+      padding: 12px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    font-size: 12px;
+
+    & > div,
+    & > button {
+      padding: 7px;
+    }
+  }
 `;
 
 const OrdersFoot = styled.div`
   font-family: var(--font-primary);
-  font-size: 16px;
+  font-size: 22px;
   color: var(--color-accent-main);
   border-radius: 0 0 10px 10px;
   background-color: var(--color-element-light);
@@ -76,6 +100,18 @@ const OrdersFoot = styled.div`
     border: none;
     border-bottom: 1px dashed var(--color-accent-main);
   }
+
+  @media (max-width: 1440px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 630px) {
+    font-size: 14px;
+  }
+
+  @media (max-width: 520px) {
+    font-size: 12px;
+  }
 `;
 
 const OrdersList = styled.ul`
@@ -86,8 +122,24 @@ const StyledSortIcon = styled(SortIcon)`
   margin-left: 10px;
   display: inline-block;
   fill: var(--color-text);
-  width: 12px;
-  height: 12px;
+  width: 0.8vw;
+  height: 0.8vw;
+
+  @media (max-width: 1400px) {
+    width: 12px;
+    height: 12px;
+  }
+
+  @media (max-width: 630px) {
+    margin-left: 5px;
+    width: 10px;
+    height: 10px;
+  }
+
+  @media (max-width: 520px) {
+    width: 8px;
+    height: 8px;
+  }
 `;
 
 const OrdersComp = ({
@@ -129,7 +181,9 @@ const OrdersComp = ({
   };
 
   useEffect(() => {
-    setNumPages(Math.ceil(processedOrders.length / numEntries));
+    processedOrders
+      ? setNumPages(Math.ceil(processedOrders.length / numEntries))
+      : setNumPages(1);
   }, [processedOrders, numEntries]);
 
   return (
@@ -165,7 +219,7 @@ const OrdersComp = ({
               : setSortCriteria("ID Ascending")
           }
         >
-          <span>Student ID</span>
+          <span>ID</span>
           <StyledSortIcon />
         </button>
         <button onClick={() => setSortCriteria("Status")}>
@@ -175,24 +229,34 @@ const OrdersComp = ({
         <div></div>
       </OrdersHead>
       <OrdersList>
-        {processedOrders
-          .slice(
-            0 + (currentPage - 1) * numEntries,
-            numEntries + (currentPage - 1) * numEntries
-          )
-          .map((order, idx) => {
-            return (
-              <OrdersItem
-                key={idx}
-                order={order}
-                idx={idx}
-                orders={orders}
-                setOrders={setOrders}
-                checked={checked}
-                setChecked={setChecked}
-              />
-            );
-          })}
+        {processedOrders ? (
+          processedOrders
+            .slice(
+              0 + (currentPage - 1) * numEntries,
+              numEntries + (currentPage - 1) * numEntries
+            )
+            .map((order, idx) => {
+              return (
+                <OrdersItem
+                  key={idx}
+                  order={order}
+                  idx={idx}
+                  orders={orders}
+                  setOrders={setOrders}
+                  checked={checked}
+                  setChecked={setChecked}
+                />
+              );
+            })
+        ) : (
+          <>
+            <OrdersItemShimmer />
+            <OrdersItemShimmer />
+            <OrdersItemShimmer />
+            <OrdersItemShimmer />
+            <OrdersItemShimmer />
+          </>
+        )}
       </OrdersList>
       <OrdersFoot>
         <p>
@@ -201,7 +265,7 @@ const OrdersComp = ({
             type="number"
             value={numEntries}
             min="1"
-            max={Math.min(processedOrders.length, 50)}
+            max={Math.min(processedOrders?.length, 50)}
             onChange={e => {
               setNumEntries(parseInt(e.target.value, 10));
               setCurrentPage(1);

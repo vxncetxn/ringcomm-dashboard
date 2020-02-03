@@ -5,129 +5,16 @@ import Defaults from "./Defaults";
 import Navbar from "./Navbar";
 import Main from "./Main";
 
-// const ordersData = [
-//   {
-//     orderID: 1,
-//     name: "Christoph Tan Hou En",
-//     studentID: "1003147",
-//     email: "christoph_tan@mymail.sutd.edu.sg",
-//     size: "M",
-//     status: "Processed"
-//   },
-//   {
-//     orderID: 2,
-//     name: "Grace Foo Xuan",
-//     studentID: "1003111",
-//     email: "grace_foo@mymail.sutd.edu.sg",
-//     size: "XS",
-//     status: "Pending"
-//   },
-//   {
-//     orderID: 3,
-//     name: "Gary Ong Wei Qin",
-//     studentID: "1003016",
-//     email: "gary_ong@mymail.sutd.edu.sg",
-//     size: "L",
-//     status: "Processed"
-//   },
-//   {
-//     orderID: 4,
-//     name: "Benjamin Sim Zheng Wei",
-//     studentID: "1002988",
-//     email: "benjamin_sim@mymail.sutd.edu.sg",
-//     size: "L",
-//     status: "Collected"
-//   },
-//   {
-//     orderID: 5,
-//     name: "Thaddus Tan Wei Jie",
-//     studentID: "1003001",
-//     email: "thaddus_tan@mymail.sutd.edu.sg",
-//     size: "M",
-//     status: "Processed"
-//   },
-//   {
-//     orderID: 6,
-//     name: "Dhruv Mittal",
-//     studentID: "1003202",
-//     email: "dhruv_mittal@mymail.sutd.edu.sg",
-//     size: "XL",
-//     status: "Processed"
-//   },
-//   {
-//     orderID: 7,
-//     name: "Skylar Hoe Pei-Ern",
-//     studentID: "1002944",
-//     email: "skylar_hoe@mymail.sutd.edu.sg",
-//     size: "XS",
-//     status: "Processed"
-//   },
-//   {
-//     orderID: 8,
-//     name: "Jireh Tan Jin Kiat",
-//     studentID: "1003100",
-//     email: "jireh_tan@mymail.sutd.edu.sg",
-//     size: "L",
-//     status: "Pending"
-//   },
-//   {
-//     orderID: 9,
-//     name: "Tan Xuan Rong Vance",
-//     studentID: "1003005",
-//     email: "vance_tan@mymail.sutd.edu.sg",
-//     size: "XS",
-//     status: "Pending"
-//   },
-//   {
-//     orderID: 10,
-//     name: "Si Sheng Yen",
-//     studentID: "1003209",
-//     email: "shengyen_si@mymail.sutd.edu.sg",
-//     size: "S",
-//     status: "Collected"
-//   },
-//   {
-//     orderID: 11,
-//     name: "Syazwan Abdullah",
-//     studentID: "1003272",
-//     email: "syazwan_abdullah@mymail.sutd.edu.sg",
-//     size: "S",
-//     status: "Processed"
-//   },
-//   {
-//     orderID: 12,
-//     name: "Tin Wan Xuan",
-//     studentID: "1002950",
-//     email: "wanxuan_tin@mymail.sutd.edu.sg",
-//     size: "S",
-//     status: "Processed"
-//   },
-//   {
-//     orderID: 13,
-//     name: "Ainul Mardiyyah",
-//     studentID: "1003199",
-//     email: "ainul_mardiyyah@mymail.sutd.edu.sg",
-//     size: "M",
-//     status: "Processed"
-//   },
-//   {
-//     orderID: 14,
-//     name: "Darius New Wei Zhen",
-//     studentID: "1003118",
-//     email: "darius_new@mymail.sutd.edu.sg",
-//     size: "M",
-//     status: "Collected"
-//   }
-// ];
+import productMap from "./helpers/productMap";
 
 function App() {
   const [theme, setTheme] = useState(
     localStorage.getItem("theme") ? localStorage.getItem("theme") : "dark"
   );
-  const [orders, setOrders] = useState([]);
-  const [processedOrders, setProcessedOrders] = useState([]);
-  const [inventory, setInventory] = useState([]);
-  const [processedInventory, setProcessedInventory] = useState([]);
+  const [orders, setOrders] = useState(null);
+  const [processedOrders, setProcessedOrders] = useState(null);
+  const [inventory, setInventory] = useState(null);
+  const [processedInventory, setProcessedInventory] = useState(null);
   const [searchVal, setSearchVal] = useState("");
   const [searchCriteria, setSearchCriteria] = useState(
     localStorage.getItem("searchCriteria")
@@ -160,6 +47,8 @@ function App() {
         })
         .json();
 
+      console.log(fetchedOrders);
+
       const formattedOrders = fetchedOrders.order
         .filter(d => d.status !== "CANCELLED")
         .map(d => {
@@ -172,7 +61,7 @@ function App() {
             status: ["Pending", "Processed", "Collected"][
               Math.floor(Math.random() * 3)
             ],
-            products: d.items.map(i => i.product_size)
+            products: d.items.map(i => productMap(i.product_id))
           };
         });
       const formattedInventory = fetchedInventory.product
@@ -181,22 +70,22 @@ function App() {
           let name;
           switch (fetchedName) {
             case "SUTD ring 7":
-              name = "R07";
+              name = "R5";
               break;
             case "SUTD ring 8":
-              name = "R08";
+              name = "R6";
               break;
             case "SUTD ring 9":
-              name = "R09";
+              name = "R7";
               break;
             case "SUTD ring 10":
-              name = "R10";
+              name = "R8";
               break;
             case "SUTD ring 11":
-              name = "R11";
+              name = "R9";
               break;
             default:
-              name = "B08";
+              name = "B7";
               break;
           }
           return {
@@ -212,6 +101,8 @@ function App() {
         })
         .sort((a, b) => a.size.localeCompare(b.size));
 
+      console.log(formattedOrders);
+
       setOrders(formattedOrders);
       setInventory(formattedInventory);
     };
@@ -220,7 +111,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (inventory.length) {
+    if (inventory) {
       let processed = JSON.parse(JSON.stringify(inventory));
       orders.forEach(d => {
         d.products.forEach(p => {
@@ -315,6 +206,7 @@ function App() {
       <Main
         orders={orders}
         setOrders={setOrders}
+        setInventory={setInventory}
         processedOrders={processedOrders}
         processedInventory={processedInventory}
         sortCriteria={sortCriteria}

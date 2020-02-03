@@ -46,9 +46,9 @@ const ToggleBackground = styled.div`
   z-index: 1;
 `;
 
-const ToggleComp = ({ className, style, name, checked, onChange }) => {
+const ToggleComp = ({ name, checked, onChange, ...others }) => {
   return (
-    <ToggleWrapper className={className} style={style}>
+    <ToggleWrapper {...others}>
       <ToggleInput
         type="checkbox"
         id={name}

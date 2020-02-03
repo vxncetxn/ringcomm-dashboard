@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
-import Toggle from "./Toggle";
-import Checkbox from "./Checkbox";
-import Selector from "./Selector";
+import Toggle from "./components/Toggle";
+import Checkbox from "./components/Checkbox";
+import Selector from "./components/Selector";
 
 import { ReactComponent as SettingsIcon } from "./icons/settings.svg";
 import { ReactComponent as SearchIcon } from "./icons/search.svg";
@@ -23,18 +23,21 @@ const Navbar = styled.ul`
     margin-left: 30px;
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 520px) {
     padding: 0 20px;
   }
 `;
 
 const NavItem = styled.li`
+  height: 100%;
+  display: flex;
+  align-items: center;
   position: relative;
   font-family: var(--font-primary);
-  font-size: 16px;
+  font-size: 22px;
   color: var(--color-navbar-text);
-  //   text-transform: uppercase;
-  // transform: translateY(3px);
+
+  // border: 1px solid red;
 
   & > img {
     width: 40px;
@@ -51,20 +54,45 @@ const NavItem = styled.li`
     // border-bottom: 1px solid var(--color-navbar-text);
     padding: 5px 10px 5px 45px;
   }
+
+  ${props =>
+    props.function === `settings`
+      ? `
+      &:hover {
+        height: 100px;
+      }
+
+      &:hover > ul {
+        // display: block;
+        transform: scale(1);
+      }
+    `
+      : null}
+
+  @media (max-width: 1440px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 630px) {
+    font-size: 14px;
+  }
+
+  @media (max-width: 520px) {
+    font-size: 12px;
+  }
 `;
 
 const StyledSettingsIcon = styled(SettingsIcon)`
   fill: var(--color-navbar-text);
   width: 24px;
   height: 24px;
-  transform: translateY(3px);
 `;
 
 const StyledSearchIcon = styled(SearchIcon)`
   fill: var(--color-navbar-text);
   position: absolute;
   left: 13px;
-  top: 7.5px;
+  top: 21px;
   width: 17.5px;
 `;
 
@@ -79,20 +107,21 @@ const StyledHamburgerIcon = styled(HamburgerIcon)`
 `;
 
 const SettingsMenu = styled.ul`
-  display: none;
-  width: 300px;
+  // display: none;
+  width: 25vw;
   max-height: 80vh;
   overflow-y: scroll;
   position: absolute;
-  top: 50px;
-  right: 0;
+  top: 99px;
+  right: -5vw;
+  z-index: 999;
+  color: var(--color-accent-main);
   border-radius: 10px;
   border: 1px solid var(--color-accent-main);
   background-color: var(--color-element-dark);
-  // transform: scale(0);
-  transition: transform 0.1s linear;
+  transform: scale(0);
+  transition: transform 0.1s linear, background-color 0.5s ease-out;
   padding: 15px 20px;
-  transition: background-color 0.5s ease-out;
 
   & h3 {
     font-size: inherit;
@@ -127,6 +156,8 @@ const NavbarComp = ({
   sortCriteria,
   setSortCriteria
 }) => {
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   const toggleTheme = checkedVal => {
     const newTheme = checkedVal ? "light" : "dark";
     localStorage.setItem("theme", newTheme);
@@ -158,7 +189,7 @@ const NavbarComp = ({
           onChange={e => setSearchVal(e.target.value)}
         ></input>
       </NavItem>
-      <NavItem className="non-mobile">
+      <NavItem className="non-mobile" function="settings">
         <StyledSettingsIcon />
         <SettingsMenu>
           <div>
@@ -250,7 +281,7 @@ const NavbarComp = ({
           </div>
         </SettingsMenu>
       </NavItem>
-      <NavItem className="non-mobile" style={{ transform: "translateY(3px)" }}>
+      <NavItem className="non-mobile">
         <img src={require("./profile.jpg")} alt="Profile" />
       </NavItem>
       <NavItem>
