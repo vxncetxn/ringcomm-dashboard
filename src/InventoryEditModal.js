@@ -8,8 +8,6 @@ import DecisionButton from "./components/DecisionButton";
 
 const InventoryEditModal = styled(Modal)`
   width: 600px;
-  //   max-height: 80vh;
-  //   overflow-y: scroll;
 
   & h3 {
     font-size: inherit;
@@ -38,9 +36,10 @@ const InventoryEditModal = styled(Modal)`
   }
 `;
 
-const InventoryEditComp = ({
+const InventoryEditModalComp = ({
   setInventory,
   processedInventory,
+  setLastAction,
   dismissFunc
 }) => {
   const [changesMade, setChangesMade] = useState(false);
@@ -67,6 +66,11 @@ const InventoryEditComp = ({
     //   `https://rc-inventory.herokuapp.com/product/update`,
     //   { timeout: 60000 }
     // );
+
+    setLastAction({
+      action: `edit-inventory`,
+      obj: {}
+    });
 
     if (B8Field.changes) {
       await ky.put(`https://rc-inventory.herokuapp.com/product/update`, {
@@ -235,7 +239,7 @@ const InventoryEditComp = ({
   };
 
   return (
-    <InventoryEditModal>
+    <InventoryEditModal dismissFunc={dismissFunc}>
       <div>
         <h3>Edit Stock</h3>
         <div>
@@ -306,4 +310,4 @@ const InventoryEditComp = ({
   );
 };
 
-export default InventoryEditComp;
+export default InventoryEditModalComp;

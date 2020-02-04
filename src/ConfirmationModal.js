@@ -19,9 +19,9 @@ const ConfirmationModal = styled(Modal)`
   }
 `;
 
-const ConfirmationComp = ({ message, positiveFunc, negativeFunc }) => {
+const ConfirmationModalComp = ({ message, positiveFunc, negativeFunc }) => {
   return (
-    <ConfirmationModal>
+    <ConfirmationModal dismissFunc={negativeFunc}>
       <p>{message}</p>
       <DecisionButton onClick={positiveFunc}>Yes</DecisionButton>
       <DecisionButton onClick={negativeFunc}>No</DecisionButton>
@@ -29,4 +29,4 @@ const ConfirmationComp = ({ message, positiveFunc, negativeFunc }) => {
   );
 };
 
-export default ConfirmationComp;
+export default ConfirmationModalComp;

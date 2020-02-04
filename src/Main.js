@@ -29,7 +29,8 @@ const MainComp = ({
   processedOrders,
   processedInventory,
   sortCriteria,
-  setSortCriteria
+  setSortCriteria,
+  setLastAction
 }) => {
   return (
     <Main>
@@ -39,10 +40,12 @@ const MainComp = ({
         processedOrders={processedOrders}
         sortCriteria={sortCriteria}
         setSortCriteria={setSortCriteria}
+        setLastAction={setLastAction}
       />
       <Overview
         setInventory={setInventory}
         processedInventory={processedInventory}
+        setLastAction={setLastAction}
       />
     </Main>
   );

@@ -15,9 +15,16 @@ const Overlay = styled.div`
   align-items: center;
 `;
 
-const ModalComp = ({ children, ...others }) => {
+const ModalComp = ({ dismissFunc, children, ...others }) => {
   return (
-    <Overlay>
+    <Overlay
+      id="overlay"
+      onClick={e => {
+        if (e.target === document.getElementById("overlay")) {
+          dismissFunc();
+        }
+      }}
+    >
       <Floater {...others}>{children}</Floater>
     </Overlay>
   );

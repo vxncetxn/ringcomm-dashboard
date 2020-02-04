@@ -5,7 +5,7 @@ import { select } from "d3-selection";
 import { max } from "d3-array";
 import { scaleLinear, scaleOrdinal } from "d3-scale";
 
-import InventoryEdit from "./InventoryEdit";
+import InventoryEditModal from "./InventoryEditModal";
 
 import Shimmer from "./components/Shimmer";
 
@@ -273,7 +273,7 @@ const renderViz = (wrapper, data) => {
     .attr("pointer-events", "none");
 };
 
-const OverviewComp = ({ setInventory, processedInventory }) => {
+const OverviewComp = ({ setInventory, processedInventory, setLastAction }) => {
   const [inventoryEditOpen, setInventoryEditOpen] = useState(false);
 
   const d3Ref = useRef(null);
@@ -342,9 +342,10 @@ const OverviewComp = ({ setInventory, processedInventory }) => {
       </Legend>
       {inventoryEditOpen &&
         ReactDOM.createPortal(
-          <InventoryEdit
+          <InventoryEditModal
             setInventory={setInventory}
             processedInventory={processedInventory}
+            setLastAction={setLastAction}
             dismissFunc={() => setInventoryEditOpen(false)}
           />,
           document.querySelector("#modal")

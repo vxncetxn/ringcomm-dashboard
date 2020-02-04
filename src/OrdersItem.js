@@ -5,7 +5,7 @@ import ky from "ky";
 import { format } from "date-fns";
 
 import Checkbox from "./components/Checkbox";
-import Confirmation from "./Confirmation";
+import ConfirmationModal from "./ConfirmationModal";
 
 import { ReactComponent as MenuDotsIcon } from "./icons/menu-dots.svg";
 import { ReactComponent as EmailIcon } from "./icons/email.svg";
@@ -259,7 +259,8 @@ const OrdersItemComp = ({
   orders,
   setOrders,
   checked,
-  setChecked
+  setChecked,
+  setLastAction
 }) => {
   const [confirmationOpen, setConfirmationOpen] = useState(false);
 
@@ -280,6 +281,7 @@ const OrdersItemComp = ({
 
     if (putResult.status === 200) {
       setOrders(orders.filter(d => d.orderID !== id));
+      setLastAction({ action: "delete", obj: {} });
     } else {
       // TODO
     }
@@ -353,7 +355,7 @@ const OrdersItemComp = ({
             </button>
             {confirmationOpen &&
               ReactDOM.createPortal(
-                <Confirmation
+                <ConfirmationModal
                   message={`Are you sure you want to delete order #${order.orderID}?`}
                   positiveFunc={() => {
                     deleteOrder(order.orderID);

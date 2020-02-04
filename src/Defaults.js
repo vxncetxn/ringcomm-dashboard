@@ -102,6 +102,21 @@ const Defaults = createGlobalStyle`
       }
     }
 
+    .toast-animation-enter {
+      transform: translateY(0);
+    }
+    .toast-animation-enter-active {
+      transform: translateY(-130px);
+      transition: transform 200ms;
+    }
+    .toast-animation-exit {
+      transform: translateY(-130px);
+    }
+    .toast-animation-exit-active {
+      transform: translateY(0);
+      transition: transform 200ms;
+    }
+
     #hamburger-icon {
       width: 20px;
       display: none;

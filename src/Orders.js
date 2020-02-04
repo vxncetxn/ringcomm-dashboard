@@ -147,7 +147,8 @@ const OrdersComp = ({
   setOrders,
   processedOrders,
   sortCriteria,
-  setSortCriteria
+  setSortCriteria,
+  setLastAction
 }) => {
   const [numEntries, setNumEntries] = useState(10);
   const [numPages, setNumPages] = useState(null);
@@ -245,6 +246,7 @@ const OrdersComp = ({
                   setOrders={setOrders}
                   checked={checked}
                   setChecked={setChecked}
+                  setLastAction={setLastAction}
                 />
               );
             })

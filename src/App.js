@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ky from "ky";
 
 import Defaults from "./Defaults";
 import Navbar from "./Navbar";
 import Main from "./Main";
+
+import Toast from "./components/Toast";
 
 import productMap from "./helpers/productMap";
 
@@ -31,6 +33,48 @@ function App() {
       ? localStorage.getItem("sortCriteria")
       : "No. Ascending"
   );
+  const [lastAction, setLastAction] = useState({ action: "", obj: {} });
+  const [toastDisplayed, setToastDisplayed] = useState(false);
+  const [toastInfo, setToastInfo] = useState({
+    message: "",
+    undoFunc: () => {}
+  });
+
+  const timeoutRef = useRef(null);
+  useEffect(() => {
+    setToastDisplayed(false);
+    clearTimeout(timeoutRef.current);
+    if (lastAction.action) {
+      let message;
+      let undoFunc;
+
+      if (lastAction.action === "edit-inventory") {
+        message = "Inventory Updated";
+        undoFunc = async () => {};
+      } else if (lastAction.action === "edit-order") {
+        message = "Order Updated";
+        undoFunc = async () => {};
+      } else if (lastAction.action === "delete") {
+        message = "Deletion Complete";
+        undoFunc = async () => {};
+      } else if (lastAction.action === "email") {
+        message = "Email Sent";
+      }
+
+      requestAnimationFrame(() => {
+        setToastInfo({ message, undoFunc });
+        setToastDisplayed(true);
+      });
+
+      timeoutRef.current = setTimeout(() => {
+        setLastAction({ action: "", obj: {} });
+      }, 4000);
+    }
+  }, [lastAction]);
+
+  const undoAction = () => {};
+
+  const dismissToast = () => {};
 
   useEffect(() => {
     document.documentElement.setAttribute("theme", theme);
@@ -211,6 +255,15 @@ function App() {
         processedInventory={processedInventory}
         sortCriteria={sortCriteria}
         setSortCriteria={setSortCriteria}
+        setLastAction={setLastAction}
+      />
+      <Toast
+        toastDisplayed={toastDisplayed}
+        message={toastInfo.message}
+        undoFunc={toastInfo.undoFunc}
+        dismissFunc={() => {
+          setLastAction({ action: "", obj: {} });
+        }}
       />
     </>
   );
