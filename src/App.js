@@ -59,6 +59,7 @@ function App() {
         undoFunc = async () => {};
       } else if (lastAction.action === "email") {
         message = "Email Sent";
+        undoFunc = async () => {};
       }
 
       requestAnimationFrame(() => {
@@ -71,10 +72,6 @@ function App() {
       }, 4000);
     }
   }, [lastAction]);
-
-  const undoAction = () => {};
-
-  const dismissToast = () => {};
 
   useEffect(() => {
     document.documentElement.setAttribute("theme", theme);
@@ -160,21 +157,25 @@ function App() {
       orders.forEach(d => {
         d.products.forEach(p => {
           let idx;
-          switch (p) {
-            case 7:
+          switch (p.code) {
+            case "B7":
+              idx = 0;
+              break;
+            case "R5":
               idx = 1;
               break;
-            case 8:
+            case "R6":
               idx = 2;
               break;
-            case 9:
+            case "R7":
               idx = 3;
               break;
-            case 10:
+            case "R8":
               idx = 4;
               break;
-            default:
+            case "R9":
               idx = 5;
+              break;
           }
           processed[idx].orders[d.status]++;
           processed[idx].orders["Total"]++;

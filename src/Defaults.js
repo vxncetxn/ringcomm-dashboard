@@ -24,6 +24,12 @@ const Defaults = createGlobalStyle`
       // --color-65
       --color-accent-main: #858ac7;
 
+      // --color-30
+      --color-shimmer-bg: #303569;
+
+      // --color-40
+      --color-shimmer-shine: #40478c;
+
       --color-accent-pending: #f7bb18;
       --color-accent-processed: #bf18f7;
       --color-accent-collected: #40b11b;
@@ -52,6 +58,12 @@ const Defaults = createGlobalStyle`
 
       // --color-50
       --color-accent-main: #5058af;
+
+      // --color-85
+      --color-shimmer-bg: #cbcde7;
+
+      // --color-95
+      --color-shimmer-shine: #eeeef7;
 
       --color-accent-pending: #f5d63d;
       --color-accent-processed: #d477d4;

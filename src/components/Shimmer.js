@@ -10,7 +10,12 @@ const ShimmerAnimation = keyframes`
 `;
 
 const Shimmer = styled.div`
-  background: linear-gradient(to right, #303569 4%, #40478c 25%, #303569 36%);
+  background: linear-gradient(
+    to right,
+    var(--color-shimmer-bg) 4%,
+    var(--color-shimmer-shine) 25%,
+    var(--color-shimmer-bg) 36%
+  );
   background-size: 1000px 100%;
   animation: ${ShimmerAnimation} 2s infinite;
 `;
