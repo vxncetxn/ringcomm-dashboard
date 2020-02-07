@@ -2,13 +2,12 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 import TableHead from "./components/TableHead";
-import OrdersItem from "./OrdersItem";
-// import Checkbox from "./components/Checkbox";
+import FinancesItem from "./FinancesItem";
 import OrdersItemShimmer from "./OrdersItemShimmer";
 
 import { ReactComponent as SortIcon } from "./icons/sort.svg";
 
-const Orders = styled.div`
+const Finances = styled.div`
   display: flex;
   flex-direction: column;
   background-color: var(--color-element-dark);
@@ -143,8 +142,8 @@ const StyledSortIcon = styled(SortIcon)`
   }
 `;
 
-const OrdersComp = ({
-  orders,
+const FinancesComp = ({
+  transactions,
   setOrders,
   processedOrders,
   sortCriteria,
@@ -189,11 +188,8 @@ const OrdersComp = ({
   }, [processedOrders, numEntries]);
 
   return (
-    <Orders>
-      <TableHead cols="5% 15% 30% 20% 20% 10%" setChecked={setChecked}>
-        {/* <div>
-          <Checkbox onChange={e => checkAllOrders(e.target.checked)} />
-        </div> */}
+    <Finances>
+      <TableHead cols="5% 30% 20% 20% 15% 10%" setChecked={setChecked}>
         <button
           onClick={() =>
             sortCriteria === "No. Ascending"
@@ -201,7 +197,7 @@ const OrdersComp = ({
               : setSortCriteria("No. Ascending")
           }
         >
-          <span>No.</span>
+          <span>Title</span>
           <StyledSortIcon />
         </button>
         <button
@@ -211,7 +207,7 @@ const OrdersComp = ({
               : setSortCriteria("Name Ascending")
           }
         >
-          <span>Name</span>
+          <span>Submitter</span>
           <StyledSortIcon />
         </button>
         <button
@@ -221,29 +217,29 @@ const OrdersComp = ({
               : setSortCriteria("ID Ascending")
           }
         >
-          <span>ID</span>
+          <span>Date</span>
           <StyledSortIcon />
         </button>
         <button onClick={() => setSortCriteria("Status")}>
-          <span>Status</span>
+          <span>Amount</span>
           <StyledSortIcon />
         </button>
         <div></div>
       </TableHead>
       <OrdersList>
-        {processedOrders ? (
-          processedOrders
+        {transactions ? (
+          transactions
             .slice(
               0 + (currentPage - 1) * numEntries,
               numEntries + (currentPage - 1) * numEntries
             )
-            .map((order, idx) => {
+            .map((transaction, idx) => {
               return (
-                <OrdersItem
+                <FinancesItem
                   key={idx}
-                  order={order}
-                  id={`orders-item-${idx}`}
-                  orders={orders}
+                  transaction={transaction}
+                  id={`finances-item-${idx}`}
+                  transactions={transactions}
                   setOrders={setOrders}
                   checked={checked}
                   setChecked={setChecked}
@@ -294,8 +290,8 @@ const OrdersComp = ({
           </button>
         </p>
       </OrdersFoot>
-    </Orders>
+    </Finances>
   );
 };
 
-export default OrdersComp;
+export default FinancesComp;

@@ -11,19 +11,8 @@ import { ReactComponent as EmailIcon } from "./icons/email.svg";
 import { ReactComponent as EditIcon } from "./icons/edit.svg";
 import { ReactComponent as DeleteIcon } from "./icons/delete.svg";
 
+import References from "./References";
 import TableRow from "./components/TableRow";
-
-const StatusBadge = styled.span`
-  padding: 5px;
-  border-radius: 10px;
-  color: white;
-  background-color: ${props =>
-    props.children === "Pending"
-      ? "var(--color-accent-pending)"
-      : props.children === "Processed"
-      ? "var(--color-accent-processed)"
-      : "var(--color-accent-collected)"};
-`;
 
 const ActionsMenu = styled.ul`
   display: none;
@@ -126,52 +115,59 @@ const toggleActionsMenu = menuID => {
   }
 };
 
-const OrdersItemComp = ({
-  order,
+const FinancesItemComp = ({
+  transaction,
   id,
-  orders,
+  transactions,
   setOrders,
   checked,
   setChecked,
   setLastAction
 }) => {
   const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const checkOrder = e => {
+  const checkTransaction = e => {
     const checkedVal = e.target.checked;
     if (checkedVal) {
-      setChecked([...checked, order]);
+      setChecked([...checked, transaction]);
     } else {
-      setChecked(checked.filter(o => o.orderID !== order.orderID));
+      setChecked(
+        checked.filter(d => d.transactionID !== transaction.transactionID)
+      );
     }
   };
 
-  const deleteOrder = async id => {
-    const putResult = await ky.put(
-      `https://rc-inventory.herokuapp.com/order/cancelled/${id}`,
-      { timeout: 60000 }
-    );
+  //   const deleteOrder = async id => {
+  //     const putResult = await ky.put(
+  //       `https://rc-inventory.herokuapp.com/order/cancelled/${id}`,
+  //       { timeout: 60000 }
+  //     );
 
-    if (putResult.status === 200) {
-      setOrders(orders.filter(d => d.orderID !== id));
-      setLastAction({ action: "delete", obj: {} });
-    } else {
-      // TODO
-    }
-  };
+  //     if (putResult.status === 200) {
+  //       setOrders(orders.filter(d => d.orderID !== id));
+  //       setLastAction({ action: "delete", obj: {} });
+  //     } else {
+  //       // TODO
+  //     }
+  //   };
 
   return (
     <TableRow
       id={id}
-      cols="5% 15% 30% 20% 20% 10%"
-      checkFunc={checkOrder}
+      cols="5% 30% 20% 20% 15% 10%"
+      checkFunc={checkTransaction}
+      checked={checked}
+      setChecked={setChecked}
       triggerChildren={
         <>
-          <p>{order.orderID}</p>
-          <p>{order.name}</p>
-          <p>{order.studentID}</p>
-          <p>
-            <StatusBadge>{order.status}</StatusBadge>
+          <p>{transaction.title}</p>
+          <p>{transaction.submitter}</p>
+          <p>{format(new Date(transaction.submitDate), "do MMMM yyyy")}</p>
+          <p style={{ color: transaction.amount >= 0 ? "#40b11b" : "red" }}>
+            {transaction.amount >= 0
+              ? `+${transaction.amount}`
+              : transaction.amount}
           </p>
         </>
       }
@@ -185,12 +181,6 @@ const OrdersItemComp = ({
           <ActionsMenu id={`${id}-action-menu`}>
             <li>
               <button>
-                <StyledEmailIcon />
-                Send Email
-              </button>
-            </li>
-            <li>
-              <button>
                 <StyledEditIcon />
                 Edit
               </button>
@@ -200,7 +190,7 @@ const OrdersItemComp = ({
                 <StyledDeleteIcon />
                 Delete
               </button>
-              {confirmationOpen &&
+              {/* {confirmationOpen &&
                 ReactDOM.createPortal(
                   <ConfirmationModal
                     message={`Are you sure you want to delete order #${order.orderID}?`}
@@ -211,42 +201,47 @@ const OrdersItemComp = ({
                     negativeFunc={() => setConfirmationOpen(false)}
                   />,
                   document.querySelector("#modal")
-                )}
+                )} */}
             </li>
           </ActionsMenu>
           <div>
-            <span>Order Number: </span>
-            <p>{order.orderID}</p>
+            <span>Title: </span>
+            <p>{transaction.title}</p>
           </div>
           <div>
-            <span>Name: </span>
-            <p>{order.name}</p>
+            <span>Handler: </span>
+            <p>{transaction.submitter}</p>
           </div>
           <div>
-            <span>Student ID: </span>
-            <p>{order.studentID}</p>
+            <span>Transaction Submission Date: </span>
+            <p>{format(new Date(transaction.submitDate), "do MMMM yyyy")}</p>
           </div>
           <div>
-            <span>Email: </span>
-            <p>{order.email}</p>
+            <span>Details: </span>
+            <p>{transaction.details}</p>
           </div>
           <div>
-            <span>Order Submission Date: </span>
-            <p>{format(new Date(order.submitDate), "do MMMM yyyy, h:mma")}</p>
-          </div>
-          <div>
-            <span>Products: </span>
-            <p>
-              {order.products.length > 1
-                ? order.products.map(product => `${product.name}, `)
-                : order.products[0].name}
+            <span>Amount: </span>
+            <p style={{ color: transaction.amount >= 0 ? "#40b11b" : "red" }}>
+              {transaction.amount >= 0
+                ? `+${transaction.amount}`
+                : transaction.amount}
             </p>
           </div>
           <div>
-            <span>Status: </span>
-            <p>
-              <StatusBadge>{order.status}</StatusBadge>
-            </p>
+            <span>References: </span>
+            <References
+              images={transaction.references}
+              referenceContext={transaction.title}
+            />
+            {/* <button onClick={() => setLightboxOpen(true)}>TEMPORARY</button>
+            {lightboxOpen && (
+              <BetterLightbox
+                images={transaction.references}
+                clickedIdx={0}
+                dismissFunc={() => setLightboxOpen(false)}
+              />
+            )} */}
           </div>
         </>
       }
@@ -254,4 +249,4 @@ const OrdersItemComp = ({
   );
 };
 
-export default OrdersItemComp;
+export default FinancesItemComp;

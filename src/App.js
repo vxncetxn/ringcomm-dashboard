@@ -9,6 +9,36 @@ import Toast from "./components/Toast";
 
 import productMap from "./helpers/productMap";
 
+const transactions = [
+  {
+    transactionID: 1,
+    title: "Budget FY2019-20",
+    details: "Budget for FY2019 - 2020 cycle",
+    submitter: "Dhruv Mittal",
+    amount: 4000,
+    submitDate: new Date(),
+    references: ["./receipt-sample-one.jpg"]
+  },
+  {
+    transactionID: 2,
+    title: "MX8399 Chip Antenna x25",
+    details: "MX8399 Chip Antenna for testing on our prototypes",
+    submitter: "Zen",
+    amount: -32.5,
+    submitDate: new Date(),
+    references: ["./receipt-sample-two.png", "./receipt-sample-three.png"]
+  },
+  {
+    transactionID: 3,
+    title: "Silicon Sheet x3",
+    details: "Silicon sheets for testing on our prototypes",
+    submitter: "Zen",
+    amount: "-56.7",
+    submitDate: new Date(),
+    references: ["./receipt-sample-three.png", "./receipt-sample-one.jpg"]
+  }
+];
+
 function App() {
   const [theme, setTheme] = useState(
     localStorage.getItem("theme") ? localStorage.getItem("theme") : "dark"
@@ -257,6 +287,7 @@ function App() {
         sortCriteria={sortCriteria}
         setSortCriteria={setSortCriteria}
         setLastAction={setLastAction}
+        transactions={transactions}
       />
       <Toast
         toastDisplayed={toastDisplayed}

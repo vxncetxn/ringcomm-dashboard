@@ -1,4 +1,5 @@
 import { createGlobalStyle } from "styled-components";
+import "react-image-lightbox/style.css";
 
 const Defaults = createGlobalStyle`
     :root {

@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import Overview from "./Overview";
 import Orders from "./Orders";
+import Finances from "./Finances";
 
 const Main = styled.div`
   display: flex;
@@ -30,12 +31,21 @@ const MainComp = ({
   processedInventory,
   sortCriteria,
   setSortCriteria,
-  setLastAction
+  setLastAction,
+  transactions
 }) => {
   return (
     <Main>
-      <Orders
+      {/* <Orders
         orders={orders}
+        setOrders={setOrders}
+        processedOrders={processedOrders}
+        sortCriteria={sortCriteria}
+        setSortCriteria={setSortCriteria}
+        setLastAction={setLastAction}
+      /> */}
+      <Finances
+        transactions={transactions}
         setOrders={setOrders}
         processedOrders={processedOrders}
         sortCriteria={sortCriteria}
