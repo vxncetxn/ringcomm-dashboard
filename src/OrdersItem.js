@@ -147,12 +147,12 @@ const OrdersItemComp = ({
   };
 
   const deleteOrder = async id => {
-    const putResult = await ky.put(
+    const deleteResult = await ky.delete(
       `https://rc-inventory.herokuapp.com/order/cancelled/${id}`,
       { timeout: 60000 }
     );
 
-    if (putResult.status === 200) {
+    if (deleteResult.status === 200) {
       setOrders(orders.filter(d => d.orderID !== id));
       setLastAction({ action: "delete", obj: {} });
     } else {

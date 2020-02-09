@@ -36,22 +36,22 @@ const MainComp = ({
 }) => {
   return (
     <Main>
-      {/* <Orders
+      <Orders
         orders={orders}
         setOrders={setOrders}
         processedOrders={processedOrders}
         sortCriteria={sortCriteria}
         setSortCriteria={setSortCriteria}
         setLastAction={setLastAction}
-      /> */}
-      <Finances
+      />
+      {/* <Finances
         transactions={transactions}
         setOrders={setOrders}
         processedOrders={processedOrders}
         sortCriteria={sortCriteria}
         setSortCriteria={setSortCriteria}
         setLastAction={setLastAction}
-      />
+      /> */}
       <Overview
         setInventory={setInventory}
         processedInventory={processedInventory}

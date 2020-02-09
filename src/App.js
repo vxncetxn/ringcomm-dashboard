@@ -118,7 +118,7 @@ function App() {
         })
         .json();
 
-      console.log(fetchedOrders);
+      console.log(fetchedInventory);
 
       const formattedOrders = fetchedOrders.order
         .filter(d => d.status !== "CANCELLED")
@@ -167,12 +167,10 @@ function App() {
               Processed: 0,
               Collected: 0
             },
-            stock: d.stock_on_hand
+            stock: d.stock
           };
         })
         .sort((a, b) => a.size.localeCompare(b.size));
-
-      console.log(formattedOrders);
 
       setOrders(formattedOrders);
       setInventory(formattedInventory);
