@@ -98,9 +98,7 @@ const NavbarComp = ({
   searchVal,
   setSearchVal,
   searchCriteria,
-  setSearchCriteria,
-  sortCriteria,
-  setSortCriteria
+  setSearchCriteria
 }) => {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -125,8 +123,6 @@ const NavbarComp = ({
               setTheme={setTheme}
               searchCriteria={searchCriteria}
               setSearchCriteria={setSearchCriteria}
-              sortCriteria={sortCriteria}
-              setSortCriteria={setSortCriteria}
             />,
             document.querySelector("#modal")
           )}

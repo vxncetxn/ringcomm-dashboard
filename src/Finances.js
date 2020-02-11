@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import styled from "styled-components";
+
+import { DataContext, SortCriteriaContext } from "./Context";
 
 import TableHead from "./components/TableHead";
 import FinancesItem from "./FinancesItem";
@@ -8,14 +10,12 @@ import OrdersItemShimmer from "./OrdersItemShimmer";
 import { ReactComponent as SortIcon } from "./icons/sort.svg";
 
 const Finances = styled.div`
+  height: 100%;
   display: flex;
   flex-direction: column;
   background-color: var(--color-element-dark);
   border-radius: 10px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  width: 70%;
-  height: calc(100vh - 100px - 60px);
-  height: 100%;
   transition: background-color 0.5s ease-out;
 
   & > li:last-child {
@@ -142,14 +142,12 @@ const StyledSortIcon = styled(SortIcon)`
   }
 `;
 
-const FinancesComp = ({
-  transactions,
-  setOrders,
-  processedOrders,
-  sortCriteria,
-  setSortCriteria,
-  setLastAction
-}) => {
+const FinancesComp = () => {
+  const { processedTransactions } = useContext(DataContext);
+  const { financesSortCriteria, setFinancesSortCriteria } = useContext(
+    SortCriteriaContext
+  );
+
   const [numEntries, setNumEntries] = useState(10);
   const [numPages, setNumPages] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -167,34 +165,34 @@ const FinancesComp = ({
     }
   };
 
-  const checkAllOrders = checkedVal => {
-    if (checkedVal) {
-      document
-        .querySelectorAll(".order-item-checkbox")
-        .forEach(checkbox => (checkbox.checked = true));
-      setChecked(processedOrders);
-    } else {
-      document
-        .querySelectorAll(".order-item-checkbox")
-        .forEach(checkbox => (checkbox.checked = false));
-      setChecked([]);
-    }
-  };
+  // const checkAllOrders = checkedVal => {
+  //   if (checkedVal) {
+  //     document
+  //       .querySelectorAll(".order-item-checkbox")
+  //       .forEach(checkbox => (checkbox.checked = true));
+  //     setChecked(processedOrders);
+  //   } else {
+  //     document
+  //       .querySelectorAll(".order-item-checkbox")
+  //       .forEach(checkbox => (checkbox.checked = false));
+  //     setChecked([]);
+  //   }
+  // };
 
-  useEffect(() => {
-    processedOrders
-      ? setNumPages(Math.ceil(processedOrders.length / numEntries))
-      : setNumPages(1);
-  }, [processedOrders, numEntries]);
+  // useEffect(() => {
+  //   processedOrders
+  //     ? setNumPages(Math.ceil(processedOrders.length / numEntries))
+  //     : setNumPages(1);
+  // }, [processedOrders, numEntries]);
 
   return (
     <Finances>
       <TableHead cols="5% 30% 20% 20% 15% 10%" setChecked={setChecked}>
         <button
           onClick={() =>
-            sortCriteria === "No. Ascending"
-              ? setSortCriteria("No. Descending")
-              : setSortCriteria("No. Ascending")
+            financesSortCriteria === "Title Ascending"
+              ? setFinancesSortCriteria("Title Descending")
+              : setFinancesSortCriteria("Title Ascending")
           }
         >
           <span>Title</span>
@@ -202,9 +200,9 @@ const FinancesComp = ({
         </button>
         <button
           onClick={() =>
-            sortCriteria === "Name Ascending"
-              ? setSortCriteria("Name Descending")
-              : setSortCriteria("Name Ascending")
+            financesSortCriteria === "Submitter Ascending"
+              ? setFinancesSortCriteria("Submitter Descending")
+              : setFinancesSortCriteria("Submitter Ascending")
           }
         >
           <span>Submitter</span>
@@ -212,23 +210,29 @@ const FinancesComp = ({
         </button>
         <button
           onClick={() =>
-            sortCriteria === "ID Ascending"
-              ? setSortCriteria("ID Descending")
-              : setSortCriteria("ID Ascending")
+            financesSortCriteria === "Date Most Recent First"
+              ? setFinancesSortCriteria("Date Most Recent Last")
+              : setFinancesSortCriteria("Date Most Recent First")
           }
         >
           <span>Date</span>
           <StyledSortIcon />
         </button>
-        <button onClick={() => setSortCriteria("Status")}>
+        <button
+          onClick={() =>
+            financesSortCriteria === "Amount Ascending"
+              ? setFinancesSortCriteria("Amount Descending")
+              : setFinancesSortCriteria("Amount Ascending")
+          }
+        >
           <span>Amount</span>
           <StyledSortIcon />
         </button>
         <div></div>
       </TableHead>
       <OrdersList>
-        {transactions ? (
-          transactions
+        {processedTransactions ? (
+          processedTransactions
             .slice(
               0 + (currentPage - 1) * numEntries,
               numEntries + (currentPage - 1) * numEntries
@@ -239,11 +243,8 @@ const FinancesComp = ({
                   key={idx}
                   transaction={transaction}
                   id={`finances-item-${idx}`}
-                  transactions={transactions}
-                  setOrders={setOrders}
                   checked={checked}
                   setChecked={setChecked}
-                  setLastAction={setLastAction}
                 />
               );
             })
@@ -264,7 +265,7 @@ const FinancesComp = ({
             type="number"
             value={numEntries}
             min="1"
-            max={Math.min(processedOrders?.length, 50)}
+            // max={Math.min(processedOrders?.length, 50)}
             onChange={e => {
               setNumEntries(parseInt(e.target.value, 10));
               setCurrentPage(1);

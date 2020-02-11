@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
+
+import { SortCriteriaContext } from "./Context";
 
 import Modal from "./components/Modal";
 import DecisionButton from "./components/DecisionButton";
@@ -40,10 +42,15 @@ const SettingsModalComp = ({
   theme,
   setTheme,
   searchCriteria,
-  setSearchCriteria,
-  sortCriteria,
-  setSortCriteria
+  setSearchCriteria
 }) => {
+  const {
+    ordersSortCriteria,
+    setOrdersSortCriteria,
+    financesSortCriteria,
+    setFinancesSortCriteria
+  } = useContext(SortCriteriaContext);
+
   const toggleTheme = checkedVal => {
     const newTheme = checkedVal ? "light" : "dark";
     localStorage.setItem("theme", newTheme);
@@ -59,9 +66,14 @@ const SettingsModalComp = ({
     setSearchCriteria(newSearchCriteria);
   };
 
-  const selectSortCriteria = selectedVal => {
-    localStorage.setItem("sortCriteria", selectedVal);
-    setSortCriteria(selectedVal);
+  const selectOrdersSortCriteria = selectedVal => {
+    localStorage.setItem("ordersSortCriteria", selectedVal);
+    setOrdersSortCriteria(selectedVal);
+  };
+
+  const selectFinancesSortCriteria = selectedVal => {
+    localStorage.setItem("financesSortCriteria", selectedVal);
+    setFinancesSortCriteria(selectedVal);
   };
 
   return (
@@ -113,9 +125,9 @@ const SettingsModalComp = ({
         </div>
       </div>
       <div>
-        <h3>Orders Panel</h3>
+        <h3>Accounts Tables</h3>
         <div>
-          <label>Default Sort</label>
+          <label>Orders Default Sort</label>
           <Selector
             options={[
               "No. Ascending",
@@ -127,8 +139,26 @@ const SettingsModalComp = ({
               "Status"
             ]}
             name=""
-            value={sortCriteria}
-            onChange={e => selectSortCriteria(e.target.value)}
+            value={ordersSortCriteria}
+            onChange={e => selectOrdersSortCriteria(e.target.value)}
+          />
+        </div>
+        <div>
+          <label>Finances Default Sort</label>
+          <Selector
+            options={[
+              "Title Ascending",
+              "Title Descending",
+              "Submitter Ascending",
+              "Submitter Descending",
+              "Date Most Recent First",
+              "Date Most Recent Last",
+              "Amount Ascending",
+              "Amount Descending"
+            ]}
+            name=""
+            value={financesSortCriteria}
+            onChange={e => selectFinancesSortCriteria(e.target.value)}
           />
         </div>
       </div>

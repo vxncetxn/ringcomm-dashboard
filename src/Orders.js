@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
+
+import { DataContext, SortCriteriaContext } from "./Context";
 
 import TableHead from "./components/TableHead";
 import OrdersItem from "./OrdersItem";
@@ -9,14 +11,12 @@ import OrdersItemShimmer from "./OrdersItemShimmer";
 import { ReactComponent as SortIcon } from "./icons/sort.svg";
 
 const Orders = styled.div`
+  height: 100%;
   display: flex;
   flex-direction: column;
   background-color: var(--color-element-dark);
   border-radius: 10px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  width: 70%;
-  height: calc(100vh - 100px - 60px);
-  height: 100%;
   transition: background-color 0.5s ease-out;
 
   & > li:last-child {
@@ -28,55 +28,6 @@ const Orders = styled.div`
     margin-top: 50px;
   }
 `;
-
-// const OrdersHead = styled.div`
-//   display: grid;
-//   grid-template-columns: 5% 15% 30% 20% 20% 10%;
-//   font-family: var(--font-primary);
-//   font-size: 22px;
-//   color: var(--color-accent-main);
-//   border-radius: 10px 10px 0 0;
-//   background-color: var(--color-element-light);
-//   transition: background-color 0.5s ease-out;
-
-//   // border-bottom: 1px solid var(--color-accent-main);
-
-//   & > div,
-//   & > button {
-//     padding: 15px;
-//     text-align: left;
-//   }
-
-//   & > button:hover {
-//     color: var(--color-text);
-//   }
-
-//   & > div > p {
-//     display: inline-block;
-//   }
-
-//   @media (max-width: 1440px) {
-//     font-size: 16px;
-//   }
-
-//   @media (max-width: 630px) {
-//     font-size: 14px;
-
-//     & > div,
-//     & > button {
-//       padding: 12px;
-//     }
-//   }
-
-//   @media (max-width: 520px) {
-//     font-size: 12px;
-
-//     & > div,
-//     & > button {
-//       padding: 7px;
-//     }
-//   }
-// `;
 
 const OrdersFoot = styled.div`
   font-family: var(--font-primary);
@@ -143,14 +94,12 @@ const StyledSortIcon = styled(SortIcon)`
   }
 `;
 
-const OrdersComp = ({
-  orders,
-  setOrders,
-  processedOrders,
-  sortCriteria,
-  setSortCriteria,
-  setLastAction
-}) => {
+const OrdersComp = () => {
+  const { processedOrders } = useContext(DataContext);
+  const { ordersSortCriteria, setOrdersSortCriteria } = useContext(
+    SortCriteriaContext
+  );
+
   const [numEntries, setNumEntries] = useState(10);
   const [numPages, setNumPages] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -196,9 +145,9 @@ const OrdersComp = ({
         </div> */}
         <button
           onClick={() =>
-            sortCriteria === "No. Ascending"
-              ? setSortCriteria("No. Descending")
-              : setSortCriteria("No. Ascending")
+            ordersSortCriteria === "No. Ascending"
+              ? setOrdersSortCriteria("No. Descending")
+              : setOrdersSortCriteria("No. Ascending")
           }
         >
           <span>No.</span>
@@ -206,9 +155,9 @@ const OrdersComp = ({
         </button>
         <button
           onClick={() =>
-            sortCriteria === "Name Ascending"
-              ? setSortCriteria("Name Descending")
-              : setSortCriteria("Name Ascending")
+            ordersSortCriteria === "Name Ascending"
+              ? setOrdersSortCriteria("Name Descending")
+              : setOrdersSortCriteria("Name Ascending")
           }
         >
           <span>Name</span>
@@ -216,15 +165,15 @@ const OrdersComp = ({
         </button>
         <button
           onClick={() =>
-            sortCriteria === "ID Ascending"
-              ? setSortCriteria("ID Descending")
-              : setSortCriteria("ID Ascending")
+            ordersSortCriteria === "ID Ascending"
+              ? setOrdersSortCriteria("ID Descending")
+              : setOrdersSortCriteria("ID Ascending")
           }
         >
           <span>ID</span>
           <StyledSortIcon />
         </button>
-        <button onClick={() => setSortCriteria("Status")}>
+        <button onClick={() => setOrdersSortCriteria("Status")}>
           <span>Status</span>
           <StyledSortIcon />
         </button>
@@ -243,11 +192,8 @@ const OrdersComp = ({
                   key={idx}
                   order={order}
                   id={`orders-item-${idx}`}
-                  orders={orders}
-                  setOrders={setOrders}
                   checked={checked}
                   setChecked={setChecked}
-                  setLastAction={setLastAction}
                 />
               );
             })

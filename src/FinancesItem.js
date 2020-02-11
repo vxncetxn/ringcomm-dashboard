@@ -118,14 +118,11 @@ const toggleActionsMenu = menuID => {
 const FinancesItemComp = ({
   transaction,
   id,
-  transactions,
-  setOrders,
   checked,
   setChecked,
   setLastAction
 }) => {
   const [confirmationOpen, setConfirmationOpen] = useState(false);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const checkTransaction = e => {
     const checkedVal = e.target.checked;

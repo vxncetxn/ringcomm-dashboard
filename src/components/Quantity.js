@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import setNativeValue from "../helpers/setNativeValue";
+
 const QuantityWrapper = styled.div`
   & > span {
     font-size: 20px;
@@ -19,28 +21,22 @@ const QuantityInput = styled.input`
   margin: 0 5px;
 `;
 
-const QuantityComp = ({ field, setField, onChange, ...others }) => {
+const QuantityComp = ({ value, onChange, ...others }) => {
   return (
     <QuantityWrapper {...others}>
       <button
-        onClick={() => {
-          setField({ value: field.value - 1, changes: true });
-          onChange();
+        onClick={e => {
+          const quantityInput = e.target.nextElementSibling;
+          setNativeValue(quantityInput, parseInt(quantityInput.value, 10) - 1);
         }}
       >
         -
       </button>
-      <QuantityInput
-        value={field.value}
-        onChange={e => {
-          setField({ value: e.target.value, changes: true });
-          onChange();
-        }}
-      />
+      <QuantityInput value={value} onChange={onChange} />
       <button
-        onClick={() => {
-          setField({ value: field.value + 1, changes: true });
-          onChange();
+        onClick={e => {
+          const quantityInput = e.target.previousElementSibling;
+          setNativeValue(quantityInput, parseInt(quantityInput.value, 10) + 1);
         }}
       >
         +

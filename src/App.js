@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import ky from "ky";
 
+import { DataContext, SortCriteriaContext } from "./Context";
+
 import Defaults from "./Defaults";
 import Navbar from "./Navbar";
 import Main from "./Main";
@@ -33,7 +35,7 @@ const transactions = [
     title: "Silicon Sheet x3",
     details: "Silicon sheets for testing on our prototypes",
     submitter: "Zen",
-    amount: "-56.7",
+    amount: -56.7,
     submitDate: new Date(),
     references: ["./receipt-sample-three.png", "./receipt-sample-one.jpg"]
   }
@@ -47,6 +49,7 @@ function App() {
   const [processedOrders, setProcessedOrders] = useState(null);
   const [inventory, setInventory] = useState(null);
   const [processedInventory, setProcessedInventory] = useState(null);
+  const [processedTransactions, setProcessedTransactions] = useState(null);
   const [searchVal, setSearchVal] = useState("");
   const [searchCriteria, setSearchCriteria] = useState(
     localStorage.getItem("searchCriteria")
@@ -58,10 +61,15 @@ function App() {
           email: false
         }
   );
-  const [sortCriteria, setSortCriteria] = useState(
-    localStorage.getItem("sortCriteria")
-      ? localStorage.getItem("sortCriteria")
+  const [ordersSortCriteria, setOrdersSortCriteria] = useState(
+    localStorage.getItem("ordersSortCriteria")
+      ? localStorage.getItem("ordersSortCriteria")
       : "No. Ascending"
+  );
+  const [financesSortCriteria, setFinancesSortCriteria] = useState(
+    localStorage.getItem("financesSortCriteria")
+      ? localStorage.getItem("financesSortCriteria")
+      : "Date Most Recent First"
   );
   const [lastAction, setLastAction] = useState({ action: "", obj: {} });
   const [toastDisplayed, setToastDisplayed] = useState(false);
@@ -83,6 +91,12 @@ function App() {
         undoFunc = async () => {};
       } else if (lastAction.action === "edit-order") {
         message = "Order Updated";
+        undoFunc = async () => {};
+      } else if (lastAction.action === "add-order") {
+        message = "Order Added";
+        undoFunc = async () => {};
+      } else if (lastAction.action === "add-record") {
+        message = "Record Added";
         undoFunc = async () => {};
       } else if (lastAction.action === "delete") {
         message = "Deletion Complete";
@@ -118,23 +132,30 @@ function App() {
         })
         .json();
 
-      console.log(fetchedInventory);
+      const formattedOrders = fetchedOrders.order.map(d => {
+        const products = {
+          "0ae22821-d150-42bf-a7ae-d6c4e0a16fb4": 0,
+          "222b1dd6-ce67-47b8-b763-52da91581597": 0,
+          "117a72a4-83bd-4539-8cb9-ecc8bbddb3bc": 0,
+          "d75a6df2-1284-4e2f-808b-6e3753718d6d": 0,
+          "ad99a78d-3e2e-4718-9c59-c4913f9d612f": 0,
+          "9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2": 0
+        };
+        d.items.forEach(i => (products[i.product_id] += i.quantity));
 
-      const formattedOrders = fetchedOrders.order
-        .filter(d => d.status !== "CANCELLED")
-        .map(d => {
-          return {
-            orderID: d.order_id,
-            name: d.customer.full_name,
-            studentID: d.customer.customer_id,
-            email: d.customer.email,
-            submitDate: d.date_ordered,
-            status: ["Pending", "Processed", "Collected"][
-              Math.floor(Math.random() * 3)
-            ],
-            products: d.items.map(i => productMap(i.product_id))
-          };
-        });
+        return {
+          orderID: d.order_id,
+          name: d.customer.full_name,
+          studentID: d.customer.customer_id,
+          email: d.customer.email,
+          submitDate: d.date_ordered,
+          status: ["Pending", "Processed", "Collected"][
+            Math.floor(Math.random() * 3)
+          ],
+          // products: d.items.map(i => productMap(i.product_id))
+          products: products
+        };
+      });
       const formattedInventory = fetchedInventory.product
         .map(d => {
           const fetchedName = `${d.product_name} ${d.product_size}`;
@@ -183,31 +204,44 @@ function App() {
     if (inventory) {
       let processed = JSON.parse(JSON.stringify(inventory));
       orders.forEach(d => {
-        d.products.forEach(p => {
-          let idx;
-          switch (p.code) {
-            case "B7":
-              idx = 0;
-              break;
-            case "R5":
-              idx = 1;
-              break;
-            case "R6":
-              idx = 2;
-              break;
-            case "R7":
-              idx = 3;
-              break;
-            case "R8":
-              idx = 4;
-              break;
-            case "R9":
-              idx = 5;
-              break;
-          }
-          processed[idx].orders[d.status]++;
-          processed[idx].orders["Total"]++;
-        });
+        processed[0].orders[d.status] +=
+          d.products["0ae22821-d150-42bf-a7ae-d6c4e0a16fb4"];
+        processed[1].orders[d.status] +=
+          d.products["222b1dd6-ce67-47b8-b763-52da91581597"];
+        processed[2].orders[d.status] +=
+          d.products["117a72a4-83bd-4539-8cb9-ecc8bbddb3bc"];
+        processed[3].orders[d.status] +=
+          d.products["d75a6df2-1284-4e2f-808b-6e3753718d6d"];
+        processed[4].orders[d.status] +=
+          d.products["ad99a78d-3e2e-4718-9c59-c4913f9d612f"];
+        processed[5].orders[d.status] +=
+          d.products["9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2"];
+
+        // d.products.forEach(p => {
+        //   let idx;
+        //   switch (p.code) {
+        //     case "B7":
+        //       idx = 0;
+        //       break;
+        //     case "R5":
+        //       idx = 1;
+        //       break;
+        //     case "R6":
+        //       idx = 2;
+        //       break;
+        //     case "R7":
+        //       idx = 3;
+        //       break;
+        //     case "R8":
+        //       idx = 4;
+        //       break;
+        //     case "R9":
+        //       idx = 5;
+        //       break;
+        //   }
+        //   processed[idx].orders[d.status]++;
+        //   processed[idx].orders["Total"]++;
+        // });
       });
 
       setProcessedInventory(processed);
@@ -236,7 +270,7 @@ function App() {
         );
       }
 
-      switch (sortCriteria) {
+      switch (ordersSortCriteria) {
         case "No. Ascending":
           processed.sort((a, b) => a.orderID - b.orderID);
           break;
@@ -261,32 +295,73 @@ function App() {
 
       setProcessedOrders(processed);
     }
-  }, [orders, searchVal, sortCriteria]);
+  }, [orders, searchVal, ordersSortCriteria]);
+
+  useEffect(() => {
+    let processed = JSON.parse(JSON.stringify(transactions));
+
+    switch (financesSortCriteria) {
+      case "Date Most Recent First":
+        processed.sort((a, b) => a.submitDate - b.submitDate);
+        break;
+      case "Date Most Recent Last":
+        processed.sort((a, b) => b.submitDate - a.submitDate);
+        break;
+      case "Title Ascending":
+        processed.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case "Title Descending":
+        processed.sort((a, b) => -a.title.localeCompare(b.title));
+        break;
+      case "Submitter Ascending":
+        processed.sort((a, b) => a.submitter.localeCompare(b.submitter));
+        break;
+      case "Submitter Descending":
+        processed.sort((a, b) => -a.submitter.localeCompare(b.submitter));
+        break;
+      case "Amount Ascending":
+        processed.sort((a, b) => a.amount - b.amount);
+        break;
+      default:
+        processed.sort((a, b) => b.amount - a.amount);
+    }
+
+    setProcessedTransactions(processed);
+  }, [transactions, financesSortCriteria]);
 
   return (
     <>
       <Defaults />
-      <Navbar
-        theme={theme}
-        setTheme={setTheme}
-        searchVal={searchVal}
-        setSearchVal={setSearchVal}
-        searchCriteria={searchCriteria}
-        setSearchCriteria={setSearchCriteria}
-        sortCriteria={sortCriteria}
-        setSortCriteria={setSortCriteria}
-      />
-      <Main
-        orders={orders}
-        setOrders={setOrders}
-        setInventory={setInventory}
-        processedOrders={processedOrders}
-        processedInventory={processedInventory}
-        sortCriteria={sortCriteria}
-        setSortCriteria={setSortCriteria}
-        setLastAction={setLastAction}
-        transactions={transactions}
-      />
+      <SortCriteriaContext.Provider
+        value={{
+          ordersSortCriteria: ordersSortCriteria,
+          setOrdersSortCriteria: setOrdersSortCriteria,
+          financesSortCriteria: financesSortCriteria,
+          setFinancesSortCriteria: setFinancesSortCriteria
+        }}
+      >
+        <Navbar
+          theme={theme}
+          setTheme={setTheme}
+          searchVal={searchVal}
+          setSearchVal={setSearchVal}
+          searchCriteria={searchCriteria}
+          setSearchCriteria={setSearchCriteria}
+        />
+        <DataContext.Provider
+          value={{
+            orders: orders,
+            setOrders: setOrders,
+            setInventory: setInventory,
+            processedOrders: processedOrders,
+            processedInventory: processedInventory,
+            processedTransactions: processedTransactions,
+            setLastAction: setLastAction
+          }}
+        >
+          <Main />
+        </DataContext.Provider>
+      </SortCriteriaContext.Provider>
       <Toast
         toastDisplayed={toastDisplayed}
         message={toastInfo.message}

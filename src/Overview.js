@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 import { select } from "d3-selection";
 import { max } from "d3-array";
 import { scaleLinear, scaleOrdinal } from "d3-scale";
+
+import { DataContext } from "./Context";
 
 import InventoryEditModal from "./InventoryEditModal";
 
@@ -273,7 +275,9 @@ const renderViz = (wrapper, data) => {
     .attr("pointer-events", "none");
 };
 
-const OverviewComp = ({ setInventory, processedInventory, setLastAction }) => {
+const OverviewComp = () => {
+  const { processedInventory } = useContext(DataContext);
+
   const [inventoryEditOpen, setInventoryEditOpen] = useState(false);
 
   const d3Ref = useRef(null);
@@ -315,8 +319,9 @@ const OverviewComp = ({ setInventory, processedInventory, setLastAction }) => {
         <Viz ref={d3Ref} />
       ) : (
         <VizShimmer>
-          {[...Array(6).keys()].map(() => (
+          {[...Array(6).keys()].map((_, idx) => (
             <BarShimmer
+              key={idx}
               widthPercent={Math.max(10, Math.round(Math.random() * 100))}
             />
           ))}
@@ -343,9 +348,6 @@ const OverviewComp = ({ setInventory, processedInventory, setLastAction }) => {
       {inventoryEditOpen &&
         ReactDOM.createPortal(
           <InventoryEditModal
-            setInventory={setInventory}
-            processedInventory={processedInventory}
-            setLastAction={setLastAction}
             dismissFunc={() => setInventoryEditOpen(false)}
           />,
           document.querySelector("#modal")

@@ -1,9 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 import ky from "ky";
 import { format } from "date-fns";
 
+import { DataContext } from "./Context";
+
+import productMap from "./helpers/productMap";
+
+import OrderEditModal from "./OrderEditModal";
 import ConfirmationModal from "./ConfirmationModal";
 
 import { ReactComponent as MenuDotsIcon } from "./icons/menu-dots.svg";
@@ -126,15 +131,10 @@ const toggleActionsMenu = menuID => {
   }
 };
 
-const OrdersItemComp = ({
-  order,
-  id,
-  orders,
-  setOrders,
-  checked,
-  setChecked,
-  setLastAction
-}) => {
+const OrdersItemComp = ({ order, id, checked, setChecked }) => {
+  const { orders, setOrders, setLastAction } = useContext(DataContext);
+
+  const [orderEditOpen, setOrderEditOpen] = useState(false);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
 
   const checkOrder = e => {
@@ -190,10 +190,18 @@ const OrdersItemComp = ({
               </button>
             </li>
             <li>
-              <button>
+              <button onClick={() => setOrderEditOpen(true)}>
                 <StyledEditIcon />
                 Edit
               </button>
+              {orderEditOpen &&
+                ReactDOM.createPortal(
+                  <OrderEditModal
+                    order={order}
+                    dismissFunc={() => setOrderEditOpen(false)}
+                  />,
+                  document.querySelector("#modal")
+                )}
             </li>
             <li>
               <button onClick={() => setConfirmationOpen(true)}>
@@ -237,9 +245,13 @@ const OrdersItemComp = ({
           <div>
             <span>Products: </span>
             <p>
-              {order.products.length > 1
-                ? order.products.map(product => `${product.name}, `)
-                : order.products[0].name}
+              {Object.entries(order.products)
+                .filter(entry => entry[1] > 0)
+                .map((entry, idx, arr) => {
+                  return `${productMap(entry[0]).name} x${entry[1]}${
+                    idx !== arr.length - 1 ? `, ` : ``
+                  }`;
+                })}
             </p>
           </div>
           <div>

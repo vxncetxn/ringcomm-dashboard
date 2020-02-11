@@ -28,6 +28,7 @@ const ReferencesComp = ({ images, referenceContext }) => {
         {images.map((image, idx) => {
           return (
             <img
+              key={idx}
               src={require(`${image}`)}
               alt={`Reference ${idx + 1} for ${referenceContext}`}
               onClick={() => {
