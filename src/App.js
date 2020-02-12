@@ -45,11 +45,13 @@ function App() {
   const [theme, setTheme] = useState(
     localStorage.getItem("theme") ? localStorage.getItem("theme") : "dark"
   );
-  const [orders, setOrders] = useState(null);
-  const [processedOrders, setProcessedOrders] = useState(null);
-  const [inventory, setInventory] = useState(null);
-  const [processedInventory, setProcessedInventory] = useState(null);
-  const [processedTransactions, setProcessedTransactions] = useState(null);
+  const [ordersFetchStatus, setOrdersFetchStatus] = useState("fetching");
+  const [orders, setOrders] = useState([]);
+  const [processedOrders, setProcessedOrders] = useState([]);
+  const [inventoryFetchStatus, setInventoryFetchStatus] = useState("fetching");
+  const [inventory, setInventory] = useState([]);
+  const [processedInventory, setProcessedInventory] = useState([]);
+  const [processedTransactions, setProcessedTransactions] = useState([]);
   const [searchVal, setSearchVal] = useState("");
   const [searchCriteria, setSearchCriteria] = useState(
     localStorage.getItem("searchCriteria")
@@ -77,6 +79,18 @@ function App() {
     message: "",
     undoFunc: () => {}
   });
+
+  // TEMP VARS START
+
+  const autoRefresh = true;
+
+  const getUpdateID = () => "64";
+
+  const notifyUpdateAvail = () => {
+    console.log("Update is available!");
+  };
+
+  // TEMP VARS END
 
   const timeoutRef = useRef(null);
   useEffect(() => {
@@ -121,133 +135,191 @@ function App() {
     document.documentElement.setAttribute("theme", theme);
   }, [theme]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const fetchedOrders = await ky
-        .get(`https://rc-inventory.herokuapp.com/order/get`, { timeout: 60000 })
-        .json();
-      const fetchedInventory = await ky
-        .get(`https://rc-inventory.herokuapp.com/product/get`, {
-          timeout: 60000
-        })
-        .json();
+  const formatOrders = raw => {
+    return raw.order.map(d => {
+      const products = {
+        "0ae22821-d150-42bf-a7ae-d6c4e0a16fb4": 0,
+        "222b1dd6-ce67-47b8-b763-52da91581597": 0,
+        "117a72a4-83bd-4539-8cb9-ecc8bbddb3bc": 0,
+        "d75a6df2-1284-4e2f-808b-6e3753718d6d": 0,
+        "ad99a78d-3e2e-4718-9c59-c4913f9d612f": 0,
+        "9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2": 0
+      };
+      d.items.forEach(i => (products[i.product_id] += i.quantity));
 
-      const formattedOrders = fetchedOrders.order.map(d => {
-        const products = {
-          "0ae22821-d150-42bf-a7ae-d6c4e0a16fb4": 0,
-          "222b1dd6-ce67-47b8-b763-52da91581597": 0,
-          "117a72a4-83bd-4539-8cb9-ecc8bbddb3bc": 0,
-          "d75a6df2-1284-4e2f-808b-6e3753718d6d": 0,
-          "ad99a78d-3e2e-4718-9c59-c4913f9d612f": 0,
-          "9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2": 0
-        };
-        d.items.forEach(i => (products[i.product_id] += i.quantity));
+      return {
+        orderID: d.order_id,
+        name: d.customer.full_name,
+        studentID: d.customer.customer_id,
+        email: d.customer.email,
+        submitDate: d.date_ordered,
+        status: ["Pending", "Processed", "Collected"][
+          Math.floor(Math.random() * 3)
+        ],
+        products: products
+      };
+    });
+  };
 
+  const formatInventory = raw => {
+    return raw.product
+      .map(d => {
+        const fetchedName = `${d.product_name} ${d.product_size}`;
+        let name;
+        switch (fetchedName) {
+          case "SUTD ring 7":
+            name = "R5";
+            break;
+          case "SUTD ring 8":
+            name = "R6";
+            break;
+          case "SUTD ring 9":
+            name = "R7";
+            break;
+          case "SUTD ring 10":
+            name = "R8";
+            break;
+          case "SUTD ring 11":
+            name = "R9";
+            break;
+          default:
+            name = "B7";
+            break;
+        }
         return {
-          orderID: d.order_id,
-          name: d.customer.full_name,
-          studentID: d.customer.customer_id,
-          email: d.customer.email,
-          submitDate: d.date_ordered,
-          status: ["Pending", "Processed", "Collected"][
-            Math.floor(Math.random() * 3)
-          ],
-          // products: d.items.map(i => productMap(i.product_id))
-          products: products
+          size: name,
+          orders: {
+            Total: 0,
+            Pending: 0,
+            Processed: 0,
+            Collected: 0
+          },
+          stock: d.stock
         };
-      });
-      const formattedInventory = fetchedInventory.product
-        .map(d => {
-          const fetchedName = `${d.product_name} ${d.product_size}`;
-          let name;
-          switch (fetchedName) {
-            case "SUTD ring 7":
-              name = "R5";
-              break;
-            case "SUTD ring 8":
-              name = "R6";
-              break;
-            case "SUTD ring 9":
-              name = "R7";
-              break;
-            case "SUTD ring 10":
-              name = "R8";
-              break;
-            case "SUTD ring 11":
-              name = "R9";
-              break;
-            default:
-              name = "B7";
-              break;
-          }
-          return {
-            size: name,
-            orders: {
-              Total: 0,
-              Pending: 0,
-              Processed: 0,
-              Collected: 0
-            },
-            stock: d.stock
-          };
-        })
-        .sort((a, b) => a.size.localeCompare(b.size));
+      })
+      .sort((a, b) => a.size.localeCompare(b.size));
+  };
 
-      setOrders(formattedOrders);
-      setInventory(formattedInventory);
-    };
+  const fetchData = async (
+    url,
+    formatDataFunc,
+    setDataFunc,
+    setDataFetchStatusFunc,
+    updateIDName,
+    cacheName
+  ) => {
+    try {
+      const fetchedData = await ky.get(url).json();
+      const fetchedDataUpdateID = getUpdateID();
+      const formattedData = formatDataFunc(fetchedData);
+      setDataFunc(formattedData);
+      localStorage.setItem(updateIDName, fetchedDataUpdateID);
+      localStorage.setItem(cacheName, JSON.stringify(formattedData));
+      setDataFetchStatusFunc("success");
+      console.log("Succeeded in fetching new data!");
+    } catch (error) {
+      const cachedData = localStorage.getItem(cacheName);
 
-    fetchData();
+      if (cachedData) {
+        setDataFunc(JSON.parse(cachedData));
+        setDataFetchStatusFunc("failure-cache");
+        console.log("Failed to fetch data. Using cached data!");
+      } else {
+        setDataFetchStatusFunc("failure-nocache");
+        console.log("Failed to fetch data. No cache available!");
+      }
+    }
+  };
+
+  const initialDataFetchSeq = (
+    url,
+    formatDataFunc,
+    setDataFunc,
+    setDataFetchStatusFunc,
+    updateIDName,
+    cacheName
+  ) => {
+    const dataUpdateID = localStorage.getItem(updateIDName);
+    const cachedData = localStorage.getItem(cacheName);
+
+    if (dataUpdateID) {
+      const fetchedDataUpdateID = getUpdateID();
+
+      if (dataUpdateID === fetchedDataUpdateID) {
+        if (cachedData) {
+          setDataFunc(JSON.parse(cachedData));
+          setDataFetchStatusFunc("success");
+          console.log("No updates to data detected. Using cached data!");
+        } else {
+          localStorage.setItem(updateIDName, "");
+          fetchData(
+            url,
+            formatDataFunc,
+            setDataFunc,
+            setDataFetchStatusFunc,
+            updateIDName,
+            cacheName
+          );
+        }
+      } else {
+        fetchData(
+          url,
+          formatDataFunc,
+          setDataFunc,
+          setDataFetchStatusFunc,
+          updateIDName,
+          cacheName
+        );
+      }
+    } else {
+      fetchData(
+        url,
+        formatDataFunc,
+        setDataFunc,
+        setDataFetchStatusFunc,
+        updateIDName,
+        cacheName
+      );
+    }
+  };
+
+  /* Initial useEffect for fetching Orders */
+  useEffect(() => {
+    initialDataFetchSeq(
+      "https://rc-inventory.herokuapp.com/order/get",
+      formatOrders,
+      setOrders,
+      setOrdersFetchStatus,
+      "ordersUpdateID",
+      "cachedOrders"
+    );
   }, []);
 
+  /* Initial useEffect for fetching Inventory */
   useEffect(() => {
-    if (inventory) {
-      let processed = JSON.parse(JSON.stringify(inventory));
-      orders.forEach(d => {
-        processed[0].orders[d.status] +=
-          d.products["0ae22821-d150-42bf-a7ae-d6c4e0a16fb4"];
-        processed[1].orders[d.status] +=
-          d.products["222b1dd6-ce67-47b8-b763-52da91581597"];
-        processed[2].orders[d.status] +=
-          d.products["117a72a4-83bd-4539-8cb9-ecc8bbddb3bc"];
-        processed[3].orders[d.status] +=
-          d.products["d75a6df2-1284-4e2f-808b-6e3753718d6d"];
-        processed[4].orders[d.status] +=
-          d.products["ad99a78d-3e2e-4718-9c59-c4913f9d612f"];
-        processed[5].orders[d.status] +=
-          d.products["9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2"];
+    initialDataFetchSeq(
+      "https://rc-inventory.herokuapp.com/product/get",
+      formatInventory,
+      setInventory,
+      setInventoryFetchStatus,
+      "inventoryUpdateID",
+      "cachedInventory"
+    );
+  }, []);
 
-        // d.products.forEach(p => {
-        //   let idx;
-        //   switch (p.code) {
-        //     case "B7":
-        //       idx = 0;
-        //       break;
-        //     case "R5":
-        //       idx = 1;
-        //       break;
-        //     case "R6":
-        //       idx = 2;
-        //       break;
-        //     case "R7":
-        //       idx = 3;
-        //       break;
-        //     case "R8":
-        //       idx = 4;
-        //       break;
-        //     case "R9":
-        //       idx = 5;
-        //       break;
-        //   }
-        //   processed[idx].orders[d.status]++;
-        //   processed[idx].orders["Total"]++;
-        // });
-      });
+  /* Initial useEffect for fetching Transactions */
+  // useEffect(() => {
+  //   initialDataFetchSeq(
+  //     "https://rc-inventory.herokuapp.com/order/get",
+  //     formatOrders,
+  //     setOrders,
+  //     setOrdersFetchStatus,
+  //     "ordersUpdateID",
+  //     "cachedOrders"
+  //   );
+  // }, []);
 
-      setProcessedInventory(processed);
-    }
-  }, [orders, inventory]);
-
+  /* useEffect for processing Orders */
   useEffect(() => {
     if (orders) {
       let processed = JSON.parse(JSON.stringify(orders));
@@ -297,6 +369,30 @@ function App() {
     }
   }, [orders, searchVal, ordersSortCriteria]);
 
+  /* useEffect for processing Inventory */
+  useEffect(() => {
+    if (inventory.length) {
+      let processed = JSON.parse(JSON.stringify(inventory));
+      orders.forEach(d => {
+        processed[0].orders[d.status] +=
+          d.products["0ae22821-d150-42bf-a7ae-d6c4e0a16fb4"];
+        processed[1].orders[d.status] +=
+          d.products["222b1dd6-ce67-47b8-b763-52da91581597"];
+        processed[2].orders[d.status] +=
+          d.products["117a72a4-83bd-4539-8cb9-ecc8bbddb3bc"];
+        processed[3].orders[d.status] +=
+          d.products["d75a6df2-1284-4e2f-808b-6e3753718d6d"];
+        processed[4].orders[d.status] +=
+          d.products["ad99a78d-3e2e-4718-9c59-c4913f9d612f"];
+        processed[5].orders[d.status] +=
+          d.products["9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2"];
+      });
+
+      setProcessedInventory(processed);
+    }
+  }, [orders, inventory]);
+
+  /* useEffect for processing Transactions */
   useEffect(() => {
     let processed = JSON.parse(JSON.stringify(transactions));
 
@@ -329,6 +425,50 @@ function App() {
     setProcessedTransactions(processed);
   }, [transactions, financesSortCriteria]);
 
+  /* useEffect for setting up Polling */
+  useEffect(() => {
+    setInterval(() => {
+      try {
+        const fetchedDataUpdateID = getUpdateID();
+        const ordersUpdateID = localStorage.getItem("ordersUpdateID");
+        const inventoryUpdateID = localStorage.getItem("inventoryUpdateID");
+        // // const transactionsUpdateID = localStorage.getItem("transactionsUpdateID");
+
+        if (ordersUpdateID !== fetchedDataUpdateID) {
+          if (autoRefresh) {
+            fetchData(
+              "https://rc-inventory.herokuapp.com/order/get",
+              formatOrders,
+              setOrders,
+              setOrdersFetchStatus,
+              "ordersUpdateID",
+              "cachedOrders"
+            );
+          } else {
+            notifyUpdateAvail();
+          }
+        }
+
+        if (inventoryUpdateID !== fetchedDataUpdateID) {
+          if (autoRefresh) {
+            fetchData(
+              "https://rc-inventory.herokuapp.com/product/get",
+              formatInventory,
+              setInventory,
+              setInventoryFetchStatus,
+              "inventoryUpdateID",
+              "cachedInventory"
+            );
+          } else {
+            notifyUpdateAvail();
+          }
+        }
+      } catch {
+        console.log("Failed to get updateID!");
+      }
+    }, 60000);
+  }, []);
+
   return (
     <>
       <Defaults />
@@ -350,10 +490,12 @@ function App() {
         />
         <DataContext.Provider
           value={{
+            ordersFetchStatus: ordersFetchStatus,
             orders: orders,
             setOrders: setOrders,
-            setInventory: setInventory,
             processedOrders: processedOrders,
+            inventoryFetchStatus: inventoryFetchStatus,
+            setInventory: setInventory,
             processedInventory: processedInventory,
             processedTransactions: processedTransactions,
             setLastAction: setLastAction

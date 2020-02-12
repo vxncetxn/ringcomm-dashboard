@@ -95,7 +95,7 @@ const StyledSortIcon = styled(SortIcon)`
 `;
 
 const OrdersComp = () => {
-  const { processedOrders } = useContext(DataContext);
+  const { ordersFetchStatus, processedOrders } = useContext(DataContext);
   const { ordersSortCriteria, setOrdersSortCriteria } = useContext(
     SortCriteriaContext
   );
@@ -180,7 +180,7 @@ const OrdersComp = () => {
         <div></div>
       </TableHead>
       <OrdersList>
-        {processedOrders ? (
+        {ordersFetchStatus !== "fetching" ? (
           processedOrders
             .slice(
               0 + (currentPage - 1) * numEntries,

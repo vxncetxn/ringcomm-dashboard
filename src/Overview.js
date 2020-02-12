@@ -276,7 +276,7 @@ const renderViz = (wrapper, data) => {
 };
 
 const OverviewComp = () => {
-  const { processedInventory } = useContext(DataContext);
+  const { inventoryFetchStatus, processedInventory } = useContext(DataContext);
 
   const [inventoryEditOpen, setInventoryEditOpen] = useState(false);
 
@@ -315,7 +315,7 @@ const OverviewComp = () => {
           <StyledMenuDotsIcon onClick={() => setInventoryEditOpen(true)} />
         </button>
       </OverviewHead>
-      {processedInventory ? (
+      {inventoryFetchStatus !== "fetching" ? (
         <Viz ref={d3Ref} />
       ) : (
         <VizShimmer>
