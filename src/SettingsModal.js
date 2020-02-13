@@ -41,6 +41,8 @@ const SettingsModalComp = ({
   dismissFunc,
   theme,
   setTheme,
+  autoReload,
+  setAutoReload,
   searchCriteria,
   setSearchCriteria
 }) => {
@@ -55,6 +57,11 @@ const SettingsModalComp = ({
     const newTheme = checkedVal ? "light" : "dark";
     localStorage.setItem("theme", newTheme);
     setTheme(newTheme);
+  };
+
+  const toggleAutoReload = checkedVal => {
+    localStorage.setItem("autoReload", checkedVal);
+    setAutoReload(checkedVal);
   };
 
   const checkSearchCriteria = (criteria, checkedVal) => {
@@ -86,6 +93,17 @@ const SettingsModalComp = ({
             name=""
             checked={theme === "dark" ? false : true}
             onChange={e => toggleTheme(e.target.checked)}
+          />
+        </div>
+      </div>
+      <div>
+        <h3>Data</h3>
+        <div>
+          <label htmlFor="">Auto-reload when new data present</label>
+          <Toggle
+            name=""
+            checked={autoReload}
+            onChange={e => toggleAutoReload(e.target.checked)}
           />
         </div>
       </div>

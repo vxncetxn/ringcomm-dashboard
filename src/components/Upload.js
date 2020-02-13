@@ -105,7 +105,7 @@ async function fileListToBase64(fileList) {
   return await Promise.all(promises);
 }
 
-const UploadComp = ({ field, setField, ...others }) => {
+const UploadComp = ({ field, setField, onChange, ...others }) => {
   const [thumbnailsArr, setThumbnailsArr] = useState([]);
 
   useEffect(() => {
@@ -123,7 +123,10 @@ const UploadComp = ({ field, setField, ...others }) => {
         type="file"
         accept=".jpg, .jpeg, .png"
         multiple
-        onChange={e => setField(Array.from(e.target.files))}
+        onChange={e => {
+          onChange();
+          setField(Array.from(e.target.files));
+        }}
       />
       <Upload>Upload References</Upload>
       <ThumbnailGallery>

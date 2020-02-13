@@ -7,6 +7,8 @@ import TableHead from "./components/TableHead";
 import OrdersItem from "./OrdersItem";
 // import Checkbox from "./components/Checkbox";
 import OrdersItemShimmer from "./OrdersItemShimmer";
+import ZeroDisplay from "./ZeroDisplay";
+import FailureDisplay from "./FailureDisplay";
 
 import { ReactComponent as SortIcon } from "./icons/sort.svg";
 
@@ -67,6 +69,7 @@ const OrdersFoot = styled.div`
 `;
 
 const OrdersList = styled.ul`
+  height: 100%;
   overflow-y: scroll;
 `;
 
@@ -132,9 +135,11 @@ const OrdersComp = () => {
   };
 
   useEffect(() => {
-    processedOrders
-      ? setNumPages(Math.ceil(processedOrders.length / numEntries))
-      : setNumPages(1);
+    // processedOrders
+    //   ? setNumPages(Math.ceil(processedOrders.length / numEntries))
+    //   : setNumPages(1);
+
+    setNumPages(Math.ceil(processedOrders.length / numEntries));
   }, [processedOrders, numEntries]);
 
   return (
@@ -180,23 +185,29 @@ const OrdersComp = () => {
         <div></div>
       </TableHead>
       <OrdersList>
-        {ordersFetchStatus !== "fetching" ? (
-          processedOrders
-            .slice(
-              0 + (currentPage - 1) * numEntries,
-              numEntries + (currentPage - 1) * numEntries
-            )
-            .map((order, idx) => {
-              return (
-                <OrdersItem
-                  key={idx}
-                  order={order}
-                  id={`orders-item-${idx}`}
-                  checked={checked}
-                  setChecked={setChecked}
-                />
-              );
-            })
+        {ordersFetchStatus === "success" ? (
+          processedOrders.length ? (
+            processedOrders
+              .slice(
+                0 + (currentPage - 1) * numEntries,
+                numEntries + (currentPage - 1) * numEntries
+              )
+              .map((order, idx) => {
+                return (
+                  <OrdersItem
+                    key={idx}
+                    order={order}
+                    id={`orders-item-${idx}`}
+                    checked={checked}
+                    setChecked={setChecked}
+                  />
+                );
+              })
+          ) : (
+            <ZeroDisplay status={ordersFetchStatus} />
+          )
+        ) : ordersFetchStatus === "failure" ? (
+          <FailureDisplay />
         ) : (
           <>
             <OrdersItemShimmer />

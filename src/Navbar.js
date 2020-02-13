@@ -95,6 +95,8 @@ const StyledHamburgerIcon = styled(HamburgerIcon)`
 const NavbarComp = ({
   theme,
   setTheme,
+  autoReload,
+  setAutoReload,
   searchVal,
   setSearchVal,
   searchCriteria,
@@ -121,6 +123,8 @@ const NavbarComp = ({
               dismissFunc={() => setSettingsOpen(false)}
               theme={theme}
               setTheme={setTheme}
+              autoReload={autoReload}
+              setAutoReload={setAutoReload}
               searchCriteria={searchCriteria}
               setSearchCriteria={setSearchCriteria}
             />,

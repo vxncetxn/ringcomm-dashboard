@@ -63,9 +63,8 @@ const InventoryEditModalComp = ({ dismissFunc }) => {
   }, [processedInventory]);
 
   const editStock = async () => {
-    const putResult = await ky.put(
-      `https://rc-inventory.herokuapp.com/product/update/batch`,
-      {
+    try {
+      await ky.put(`https://rc-inventory.herokuapp.com/product/update/batch`, {
         json: {
           product: [
             {
@@ -112,10 +111,8 @@ const InventoryEditModalComp = ({ dismissFunc }) => {
             }
           ]
         }
-      }
-    );
+      });
 
-    if (putResult.status === 200) {
       setInventory([
         {
           size: "B7",
@@ -183,8 +180,11 @@ const InventoryEditModalComp = ({ dismissFunc }) => {
         action: `edit-inventory`,
         obj: {}
       });
-    } else {
-      // TODO
+    } catch {
+      setLastAction({
+        action: `failure-edit-inventory`,
+        obj: {}
+      });
     }
   };
 

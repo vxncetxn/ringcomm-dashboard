@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import ky from "ky";
 
@@ -37,78 +37,6 @@ const AddFinanceModal = styled(Modal)`
   }
 `;
 
-const ThumbnailGallery = styled.div`
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly !important;
-  //   border: 1px solid red;
-`;
-
-const Thumbnail = styled.div`
-  position: relative;
-
-  & > img {
-    width: 75px;
-    height: 75px;
-  }
-
-  & > span {
-    position: absolute;
-    top: 0;
-    right: 0;
-    transform: translate(30%, -30%);
-    display: block;
-    box-sizing: border-box;
-    width: 20px;
-    height: 20px;
-    border-width: 3px;
-    border-style: solid;
-    border-color: var(--color-element-light);
-    border-radius: 100%;
-    background: -webkit-linear-gradient(
-        -45deg,
-        transparent 0%,
-        transparent 46%,
-        var(--color-accent-main) 46%,
-        var(--color-accent-main) 56%,
-        transparent 56%,
-        transparent 100%
-      ),
-      -webkit-linear-gradient(45deg, transparent 0%, transparent 46%, var(
-              --color-accent-main
-            )
-            46%, var(--color-accent-main) 56%, transparent 56%, transparent 100%);
-    background-color: var(--color-element-light);
-    box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.5);
-    // transition: all 0.3s ease;
-  }
-`;
-
-async function fileListToBase64(fileList) {
-  // create function which return resolved promise
-  // with data:base64 string
-  function getBase64(file) {
-    const reader = new FileReader();
-    return new Promise(resolve => {
-      reader.onload = ev => {
-        resolve(ev.target.result);
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-  // here will be array of promisified functions
-  const promises = [];
-
-  // loop through fileList with for loop
-  for (let i = 0; i < fileList.length; i++) {
-    promises.push(getBase64(fileList[i]));
-  }
-
-  // array with base64 strings
-  return await Promise.all(promises);
-}
-
 const AddFinanceModalComp = ({
   setInventory,
   processedInventory,
@@ -116,27 +44,11 @@ const AddFinanceModalComp = ({
   dismissFunc
 }) => {
   const [changesMade, setChangesMade] = useState(false);
-  const [B8Field, setB8Field] = useState({ value: 0, changes: false });
-  const [R7Field, setR7Field] = useState({ value: 0, changes: false });
-  const [R8Field, setR8Field] = useState({ value: 0, changes: false });
-  const [R9Field, setR9Field] = useState({ value: 0, changes: false });
-  const [R10Field, setR10Field] = useState({ value: 0, changes: false });
-  const [R11Field, setR11Field] = useState({ value: 0, changes: false });
-
+  const [titleField, setTitleField] = useState("");
+  const [submitterField, setSubmitterField] = useState("");
+  const [detailsField, setDetailsField] = useState("");
+  const [amountField, setAmountField] = useState("");
   const [uploadedRefs, setUploadedRefs] = useState([]);
-
-  console.log(uploadedRefs);
-
-  useEffect(() => {
-    if (processedInventory) {
-      setB8Field({ value: processedInventory[0].stock, changes: false });
-      setR7Field({ value: processedInventory[1].stock, changes: false });
-      setR8Field({ value: processedInventory[2].stock, changes: false });
-      setR9Field({ value: processedInventory[3].stock, changes: false });
-      setR10Field({ value: processedInventory[4].stock, changes: false });
-      setR11Field({ value: processedInventory[5].stock, changes: false });
-    }
-  }, [processedInventory]);
 
   //   const editStock = async () => {
   //     const putResult = await ky.put(
@@ -270,26 +182,53 @@ const AddFinanceModalComp = ({
         <h3>Add Record</h3>
         <div>
           <label>Title</label>
-          <Input />
+          <Input
+            value={titleField}
+            onChange={e => {
+              setTitleField(e.target.value);
+              setChangesMade(true);
+            }}
+          />
         </div>
         <div>
           <label>Submitter</label>
-          <Input />
+          <Input
+            value={submitterField}
+            onChange={e => {
+              setSubmitterField(e.target.value);
+              setChangesMade(true);
+            }}
+          />
         </div>
         <div>
           <label>Details</label>
-          <Input />
+          <Input
+            value={detailsField}
+            onChange={e => {
+              setDetailsField(e.target.value);
+              setChangesMade(true);
+            }}
+          />
         </div>
         <div>
           <label>Amount</label>
-          <Input />
+          <Input
+            value={amountField}
+            onChange={e => {
+              setAmountField(e.target.value);
+              setChangesMade(true);
+            }}
+          />
         </div>
         <div>
           <label>References</label>
-          {/* <Upload field={uploadedRefs} setField={setUploadedRefs} /> */}
         </div>
         <div>
-          <Upload field={uploadedRefs} setField={setUploadedRefs} />
+          <Upload
+            field={uploadedRefs}
+            setField={setUploadedRefs}
+            onChange={() => setChangesMade(true)}
+          />
         </div>
       </div>
       <div>

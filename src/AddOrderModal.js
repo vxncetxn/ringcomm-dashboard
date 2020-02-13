@@ -99,11 +99,8 @@ const AddOrderModalComp = ({ dismissFunc }) => {
       });
     }
 
-    console.log("LOOK HERE NOW: ", nameField, emailField);
-
-    const postResult = await ky.post(
-      `https://rc-inventory.herokuapp.com/order/insert`,
-      {
+    try {
+      await ky.post(`https://rc-inventory.herokuapp.com/order/insert`, {
         json: {
           customer: {
             customer_id: IDField,
@@ -115,10 +112,8 @@ const AddOrderModalComp = ({ dismissFunc }) => {
             items: newProducts
           }
         }
-      }
-    );
+      });
 
-    if (postResult.status === 200) {
       setOrders([
         ...orders,
         {
@@ -145,8 +140,11 @@ const AddOrderModalComp = ({ dismissFunc }) => {
         action: `add-order`,
         obj: {}
       });
-    } else {
-      // TODO
+    } catch {
+      setLastAction({
+        action: `failure-add-order`,
+        obj: {}
+      });
     }
   };
 

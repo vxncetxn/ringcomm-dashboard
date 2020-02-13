@@ -119,9 +119,8 @@ const OrderEditModalComp = ({ order, dismissFunc }) => {
       });
     }
 
-    const putResult = await ky.put(
-      `https://rc-inventory.herokuapp.com/order/update`,
-      {
+    try {
+      await ky.put(`https://rc-inventory.herokuapp.com/order/update`, {
         json: {
           order_id: order.orderID,
           description: "",
@@ -132,12 +131,8 @@ const OrderEditModalComp = ({ order, dismissFunc }) => {
           },
           items: newProducts
         }
-      }
-    );
+      });
 
-    console.log(putResult);
-
-    if (putResult.status === 200) {
       setOrders(
         orders.map(d => {
           if (d.orderID === order.orderID) {
@@ -168,8 +163,11 @@ const OrderEditModalComp = ({ order, dismissFunc }) => {
         action: `edit-order`,
         obj: {}
       });
-    } else {
-      // TODO
+    } catch {
+      setLastAction({
+        action: `failure-edit-order`,
+        obj: {}
+      });
     }
   };
 

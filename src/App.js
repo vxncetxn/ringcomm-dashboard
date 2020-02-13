@@ -45,6 +45,11 @@ function App() {
   const [theme, setTheme] = useState(
     localStorage.getItem("theme") ? localStorage.getItem("theme") : "dark"
   );
+  const [autoReload, setAutoReload] = useState(
+    localStorage.getItem("autoReload")
+      ? JSON.parse(localStorage.getItem("autoReload"))
+      : false
+  );
   const [ordersFetchStatus, setOrdersFetchStatus] = useState("fetching");
   const [orders, setOrders] = useState([]);
   const [processedOrders, setProcessedOrders] = useState([]);
@@ -82,9 +87,7 @@ function App() {
 
   // TEMP VARS START
 
-  const autoRefresh = true;
-
-  const getUpdateID = () => "64";
+  const getUpdateID = () => Math.round(Math.random() * 100).toString();
 
   const notifyUpdateAvail = () => {
     console.log("Update is available!");
@@ -101,23 +104,45 @@ function App() {
       let undoFunc;
 
       if (lastAction.action === "edit-inventory") {
-        message = "Inventory Updated";
+        message = "Successfully updated inventory.";
         undoFunc = async () => {};
       } else if (lastAction.action === "edit-order") {
-        message = "Order Updated";
+        message = "Successfully updated order.";
+        undoFunc = async () => {};
+      } else if (lastAction.action === "edit-record") {
+        message = "Successfully updated record.";
         undoFunc = async () => {};
       } else if (lastAction.action === "add-order") {
-        message = "Order Added";
+        message = "Successfully added order.";
         undoFunc = async () => {};
       } else if (lastAction.action === "add-record") {
-        message = "Record Added";
+        message = "Successfully added record.";
         undoFunc = async () => {};
-      } else if (lastAction.action === "delete") {
-        message = "Deletion Complete";
+      } else if (lastAction.action === "delete-order") {
+        message = "Successfully deleted order.";
+        undoFunc = async () => {};
+      } else if (lastAction.action === "delete-record") {
+        message = "Successfully deleted record.";
         undoFunc = async () => {};
       } else if (lastAction.action === "email") {
-        message = "Email Sent";
+        message = "Successfully sent email.";
         undoFunc = async () => {};
+      } else if (lastAction.action === "failure-edit-inventory") {
+        message = "Failed to update inventory.";
+      } else if (lastAction.action === "failure-edit-order") {
+        message = "Failed to update order.";
+      } else if (lastAction.action === "failure-edit-record") {
+        message = "Failed to update record.";
+      } else if (lastAction.action === "failure-add-order") {
+        message = "Failed to add order.";
+      } else if (lastAction.action === "failure-add-record") {
+        message = "Failed to add record.";
+      } else if (lastAction.action === "failure-delete-order") {
+        message = "Failed to delete order.";
+      } else if (lastAction.action === "failure-delete-record") {
+        message = "Failed to delete record.";
+      } else if (lastAction.action === "failure-cache") {
+        message = "Failed to fetch data, using cached data.";
       }
 
       requestAnimationFrame(() => {
@@ -215,18 +240,14 @@ function App() {
       setDataFunc(formattedData);
       localStorage.setItem(updateIDName, fetchedDataUpdateID);
       localStorage.setItem(cacheName, JSON.stringify(formattedData));
-      setDataFetchStatusFunc("success");
-      console.log("Succeeded in fetching new data!");
     } catch (error) {
       const cachedData = localStorage.getItem(cacheName);
 
       if (cachedData) {
         setDataFunc(JSON.parse(cachedData));
-        setDataFetchStatusFunc("failure-cache");
-        console.log("Failed to fetch data. Using cached data!");
+        setLastAction({ action: "failure-cache", obj: {} });
       } else {
-        setDataFetchStatusFunc("failure-nocache");
-        console.log("Failed to fetch data. No cache available!");
+        setDataFetchStatusFunc("failure");
       }
     }
   };
@@ -248,8 +269,6 @@ function App() {
       if (dataUpdateID === fetchedDataUpdateID) {
         if (cachedData) {
           setDataFunc(JSON.parse(cachedData));
-          setDataFetchStatusFunc("success");
-          console.log("No updates to data detected. Using cached data!");
         } else {
           localStorage.setItem(updateIDName, "");
           fetchData(
@@ -321,7 +340,7 @@ function App() {
 
   /* useEffect for processing Orders */
   useEffect(() => {
-    if (orders) {
+    if (orders.length) {
       let processed = JSON.parse(JSON.stringify(orders));
       if (searchVal) {
         const loweredSearchVal = searchVal.toLowerCase();
@@ -366,6 +385,10 @@ function App() {
       }
 
       setProcessedOrders(processed);
+      // setProcessedOrders([]);
+      requestAnimationFrame(() => {
+        setOrdersFetchStatus("success");
+      });
     }
   }, [orders, searchVal, ordersSortCriteria]);
 
@@ -389,40 +412,42 @@ function App() {
       });
 
       setProcessedInventory(processed);
+      setInventoryFetchStatus("success");
     }
   }, [orders, inventory]);
 
   /* useEffect for processing Transactions */
   useEffect(() => {
-    let processed = JSON.parse(JSON.stringify(transactions));
+    if (transactions.length) {
+      let processed = JSON.parse(JSON.stringify(transactions));
+      switch (financesSortCriteria) {
+        case "Date Most Recent First":
+          processed.sort((a, b) => a.submitDate - b.submitDate);
+          break;
+        case "Date Most Recent Last":
+          processed.sort((a, b) => b.submitDate - a.submitDate);
+          break;
+        case "Title Ascending":
+          processed.sort((a, b) => a.title.localeCompare(b.title));
+          break;
+        case "Title Descending":
+          processed.sort((a, b) => -a.title.localeCompare(b.title));
+          break;
+        case "Submitter Ascending":
+          processed.sort((a, b) => a.submitter.localeCompare(b.submitter));
+          break;
+        case "Submitter Descending":
+          processed.sort((a, b) => -a.submitter.localeCompare(b.submitter));
+          break;
+        case "Amount Ascending":
+          processed.sort((a, b) => a.amount - b.amount);
+          break;
+        default:
+          processed.sort((a, b) => b.amount - a.amount);
+      }
 
-    switch (financesSortCriteria) {
-      case "Date Most Recent First":
-        processed.sort((a, b) => a.submitDate - b.submitDate);
-        break;
-      case "Date Most Recent Last":
-        processed.sort((a, b) => b.submitDate - a.submitDate);
-        break;
-      case "Title Ascending":
-        processed.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case "Title Descending":
-        processed.sort((a, b) => -a.title.localeCompare(b.title));
-        break;
-      case "Submitter Ascending":
-        processed.sort((a, b) => a.submitter.localeCompare(b.submitter));
-        break;
-      case "Submitter Descending":
-        processed.sort((a, b) => -a.submitter.localeCompare(b.submitter));
-        break;
-      case "Amount Ascending":
-        processed.sort((a, b) => a.amount - b.amount);
-        break;
-      default:
-        processed.sort((a, b) => b.amount - a.amount);
+      setProcessedTransactions(processed);
     }
-
-    setProcessedTransactions(processed);
   }, [transactions, financesSortCriteria]);
 
   /* useEffect for setting up Polling */
@@ -435,7 +460,7 @@ function App() {
         // // const transactionsUpdateID = localStorage.getItem("transactionsUpdateID");
 
         if (ordersUpdateID !== fetchedDataUpdateID) {
-          if (autoRefresh) {
+          if (autoReload) {
             fetchData(
               "https://rc-inventory.herokuapp.com/order/get",
               formatOrders,
@@ -450,7 +475,7 @@ function App() {
         }
 
         if (inventoryUpdateID !== fetchedDataUpdateID) {
-          if (autoRefresh) {
+          if (autoReload) {
             fetchData(
               "https://rc-inventory.herokuapp.com/product/get",
               formatInventory,
@@ -483,6 +508,8 @@ function App() {
         <Navbar
           theme={theme}
           setTheme={setTheme}
+          autoReload={autoReload}
+          setAutoReload={setAutoReload}
           searchVal={searchVal}
           setSearchVal={setSearchVal}
           searchCriteria={searchCriteria}
