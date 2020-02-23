@@ -40,7 +40,7 @@ const AddOrderModal = styled(Modal)`
 `;
 
 const AddOrderModalComp = ({ dismissFunc }) => {
-  const { orders, setOrders, setLastAction } = useContext(DataContext);
+  const { orders, setOrders, setToastInfo } = useContext(DataContext);
 
   const [changesMade, setChangesMade] = useState(false);
   const [nameField, setNameField] = useState("");
@@ -136,14 +136,16 @@ const AddOrderModalComp = ({ dismissFunc }) => {
         }
       ]);
 
-      setLastAction({
-        action: `add-order`,
-        obj: {}
+      setToastInfo({
+        triggered: true,
+        action: "Successfully added order.",
+        persistent: false
       });
     } catch {
-      setLastAction({
-        action: `failure-add-order`,
-        obj: {}
+      setToastInfo({
+        triggered: true,
+        action: "Failed to add order.",
+        persistent: false
       });
     }
   };

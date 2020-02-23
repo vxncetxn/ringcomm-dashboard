@@ -78,7 +78,11 @@ const AccountsComp = () => {
             document.querySelector("#modal")
           )}
       </AccountsHead>
-      {tabState === "Orders" ? <Orders /> : <Finances />}
+      {tabState === "Orders" ? (
+        <Orders setAddRecordOpen={setAddRecordOpen} />
+      ) : (
+        <Finances />
+      )}
     </Accounts>
   );
 };

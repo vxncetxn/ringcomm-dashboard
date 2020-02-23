@@ -132,7 +132,7 @@ const toggleActionsMenu = menuID => {
 };
 
 const OrdersItemComp = ({ order, id, checked, setChecked }) => {
-  const { orders, setOrders, setLastAction } = useContext(DataContext);
+  const { orders, setOrders, setToastInfo } = useContext(DataContext);
 
   const [orderEditOpen, setOrderEditOpen] = useState(false);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
@@ -153,9 +153,17 @@ const OrdersItemComp = ({ order, id, checked, setChecked }) => {
       );
 
       setOrders(orders.filter(d => d.orderID !== id));
-      setLastAction({ action: "delete-order", obj: {} });
+      setToastInfo({
+        triggered: true,
+        message: "Successfully deleted order.",
+        persistent: false
+      });
     } catch {
-      setLastAction({ action: "failure-delete-order", obj: {} });
+      setToastInfo({
+        triggered: true,
+        message: "Failed to delete order.",
+        persistent: false
+      });
     }
   };
 

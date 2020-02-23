@@ -9,8 +9,6 @@ import Main from "./Main";
 
 import Toast from "./components/Toast";
 
-import productMap from "./helpers/productMap";
-
 const transactions = [
   {
     transactionID: 1,
@@ -78,83 +76,29 @@ function App() {
       ? localStorage.getItem("financesSortCriteria")
       : "Date Most Recent First"
   );
-  const [lastAction, setLastAction] = useState({ action: "", obj: {} });
   const [toastDisplayed, setToastDisplayed] = useState(false);
   const [toastInfo, setToastInfo] = useState({
+    triggered: false,
     message: "",
-    undoFunc: () => {}
+    persistent: false
   });
-
-  // TEMP VARS START
-
-  const getUpdateID = () => Math.round(Math.random() * 100).toString();
-
-  const notifyUpdateAvail = () => {
-    console.log("Update is available!");
-  };
-
-  // TEMP VARS END
 
   const timeoutRef = useRef(null);
   useEffect(() => {
     setToastDisplayed(false);
     clearTimeout(timeoutRef.current);
-    if (lastAction.action) {
-      let message;
-      let undoFunc;
-
-      if (lastAction.action === "edit-inventory") {
-        message = "Successfully updated inventory.";
-        undoFunc = async () => {};
-      } else if (lastAction.action === "edit-order") {
-        message = "Successfully updated order.";
-        undoFunc = async () => {};
-      } else if (lastAction.action === "edit-record") {
-        message = "Successfully updated record.";
-        undoFunc = async () => {};
-      } else if (lastAction.action === "add-order") {
-        message = "Successfully added order.";
-        undoFunc = async () => {};
-      } else if (lastAction.action === "add-record") {
-        message = "Successfully added record.";
-        undoFunc = async () => {};
-      } else if (lastAction.action === "delete-order") {
-        message = "Successfully deleted order.";
-        undoFunc = async () => {};
-      } else if (lastAction.action === "delete-record") {
-        message = "Successfully deleted record.";
-        undoFunc = async () => {};
-      } else if (lastAction.action === "email") {
-        message = "Successfully sent email.";
-        undoFunc = async () => {};
-      } else if (lastAction.action === "failure-edit-inventory") {
-        message = "Failed to update inventory.";
-      } else if (lastAction.action === "failure-edit-order") {
-        message = "Failed to update order.";
-      } else if (lastAction.action === "failure-edit-record") {
-        message = "Failed to update record.";
-      } else if (lastAction.action === "failure-add-order") {
-        message = "Failed to add order.";
-      } else if (lastAction.action === "failure-add-record") {
-        message = "Failed to add record.";
-      } else if (lastAction.action === "failure-delete-order") {
-        message = "Failed to delete order.";
-      } else if (lastAction.action === "failure-delete-record") {
-        message = "Failed to delete record.";
-      } else if (lastAction.action === "failure-cache") {
-        message = "Failed to fetch data, using cached data.";
-      }
-
+    if (toastInfo.triggered) {
       requestAnimationFrame(() => {
-        setToastInfo({ message, undoFunc });
         setToastDisplayed(true);
       });
 
-      timeoutRef.current = setTimeout(() => {
-        setLastAction({ action: "", obj: {} });
-      }, 4000);
+      if (!toastInfo.persistent) {
+        timeoutRef.current = setTimeout(() => {
+          setToastInfo({ ...toastInfo, triggered: false });
+        }, 4000);
+      }
     }
-  }, [lastAction]);
+  }, [toastInfo]);
 
   useEffect(() => {
     document.documentElement.setAttribute("theme", theme);
@@ -225,7 +169,22 @@ function App() {
       .sort((a, b) => a.size.localeCompare(b.size));
   };
 
+  const fetchUpdateIDArray = async () => {
+    let fetchedUpdateIDArray;
+    try {
+      const result = await ky
+        .get("https://rc-inventory.herokuapp.com/update/get")
+        .json();
+      fetchedUpdateIDArray = result.update;
+    } catch {
+      fetchedUpdateIDArray = null;
+    }
+
+    return fetchedUpdateIDArray;
+  };
+
   const fetchData = async (
+    table,
     url,
     formatDataFunc,
     setDataFunc,
@@ -233,45 +192,78 @@ function App() {
     updateIDName,
     cacheName
   ) => {
+    console.log("ENTERED FETCHDATA!");
     try {
       const fetchedData = await ky.get(url).json();
-      const fetchedDataUpdateID = getUpdateID();
+      const fetchedUpdateIDArray = await fetchUpdateIDArray();
+      const fetchedUpdateID = fetchedUpdateIDArray?.find(d => d.table === table)
+        .update_id;
+
       const formattedData = formatDataFunc(fetchedData);
       setDataFunc(formattedData);
-      localStorage.setItem(updateIDName, fetchedDataUpdateID);
+      localStorage.setItem(updateIDName, fetchedUpdateID);
       localStorage.setItem(cacheName, JSON.stringify(formattedData));
     } catch (error) {
       const cachedData = localStorage.getItem(cacheName);
 
       if (cachedData) {
         setDataFunc(JSON.parse(cachedData));
-        setLastAction({ action: "failure-cache", obj: {} });
+        setToastInfo({
+          triggered: true,
+          message: "Failed to fetch data, using cached data.",
+          persistent: true
+        });
       } else {
         setDataFetchStatusFunc("failure");
       }
     }
   };
 
-  const initialDataFetchSeq = (
-    url,
-    formatDataFunc,
-    setDataFunc,
-    setDataFetchStatusFunc,
-    updateIDName,
-    cacheName
-  ) => {
-    const dataUpdateID = localStorage.getItem(updateIDName);
+  const initialDataFetchSeq = async table => {
+    let url,
+      formatDataFunc,
+      setDataFunc,
+      setDataFetchStatusFunc,
+      updateIDName,
+      cacheName;
+    switch (table) {
+      case "Order":
+        url = "https://rc-inventory.herokuapp.com/order/get";
+        formatDataFunc = formatOrders;
+        setDataFunc = setOrders;
+        setDataFetchStatusFunc = setOrdersFetchStatus;
+        updateIDName = "ordersUpdateID";
+        cacheName = "cachedOrders";
+        break;
+      case "Finance":
+        break;
+      case "Product":
+        url = "https://rc-inventory.herokuapp.com/product/get";
+        formatDataFunc = formatInventory;
+        setDataFunc = setInventory;
+        setDataFetchStatusFunc = setInventoryFetchStatus;
+        updateIDName = "inventoryUpdateID";
+        cacheName = "cachedInventory";
+        break;
+      default:
+        break;
+    }
+
+    const updateID = localStorage.getItem(updateIDName);
     const cachedData = localStorage.getItem(cacheName);
 
-    if (dataUpdateID) {
-      const fetchedDataUpdateID = getUpdateID();
+    if (updateID) {
+      const fetchedUpdateIDArray = await fetchUpdateIDArray();
+      const fetchedUpdateID = fetchedUpdateIDArray?.find(d => d.table === table)
+        .update_id;
 
-      if (dataUpdateID === fetchedDataUpdateID) {
+      if (updateID === fetchedUpdateID) {
         if (cachedData) {
           setDataFunc(JSON.parse(cachedData));
         } else {
           localStorage.setItem(updateIDName, "");
           fetchData(
+            table,
             url,
             formatDataFunc,
             setDataFunc,
@@ -282,6 +274,7 @@ function App() {
         }
       } else {
         fetchData(
+          table,
           url,
           formatDataFunc,
           setDataFunc,
@@ -292,6 +285,7 @@ function App() {
       }
     } else {
       fetchData(
+        table,
         url,
         formatDataFunc,
         setDataFunc,
@@ -304,26 +298,12 @@ function App() {
 
   /* Initial useEffect for fetching Orders */
   useEffect(() => {
-    initialDataFetchSeq(
-      "https://rc-inventory.herokuapp.com/order/get",
-      formatOrders,
-      setOrders,
-      setOrdersFetchStatus,
-      "ordersUpdateID",
-      "cachedOrders"
-    );
+    initialDataFetchSeq("Order");
   }, []);
 
   /* Initial useEffect for fetching Inventory */
   useEffect(() => {
-    initialDataFetchSeq(
-      "https://rc-inventory.herokuapp.com/product/get",
-      formatInventory,
-      setInventory,
-      setInventoryFetchStatus,
-      "inventoryUpdateID",
-      "cachedInventory"
-    );
+    initialDataFetchSeq("Product");
   }, []);
 
   /* Initial useEffect for fetching Transactions */
@@ -452,16 +432,23 @@ function App() {
 
   /* useEffect for setting up Polling */
   useEffect(() => {
-    setInterval(() => {
+    const intervalID = setInterval(async () => {
       try {
-        const fetchedDataUpdateID = getUpdateID();
+        const fetchedUpdateIDArray = await fetchUpdateIDArray();
+        const fetchedOrdersUpdateID = fetchedUpdateIDArray?.find(
+          d => d.table === "Order"
+        ).update_id;
+        const fetchedInventoryUpdateID = fetchedUpdateIDArray.find(
+          d => d.table === "Product"
+        ).update_id;
         const ordersUpdateID = localStorage.getItem("ordersUpdateID");
         const inventoryUpdateID = localStorage.getItem("inventoryUpdateID");
-        // // const transactionsUpdateID = localStorage.getItem("transactionsUpdateID");
+        // const transactionsUpdateID = localStorage.getItem("transactionsUpdateID");
 
-        if (ordersUpdateID !== fetchedDataUpdateID) {
+        if (ordersUpdateID !== fetchedOrdersUpdateID) {
           if (autoReload) {
             fetchData(
+              "Order",
               "https://rc-inventory.herokuapp.com/order/get",
               formatOrders,
               setOrders,
@@ -470,13 +457,18 @@ function App() {
               "cachedOrders"
             );
           } else {
-            notifyUpdateAvail();
+            setToastInfo({
+              triggered: true,
+              message: "New data is available.",
+              persistent: true
+            });
           }
         }
 
-        if (inventoryUpdateID !== fetchedDataUpdateID) {
+        if (inventoryUpdateID !== fetchedInventoryUpdateID) {
           if (autoReload) {
             fetchData(
+              "Product",
               "https://rc-inventory.herokuapp.com/product/get",
               formatInventory,
               setInventory,
@@ -485,14 +477,20 @@ function App() {
               "cachedInventory"
             );
           } else {
-            notifyUpdateAvail();
+            setToastInfo({
+              triggered: true,
+              message: "New data is available.",
+              persistent: true
+            });
           }
         }
       } catch {
         console.log("Failed to get updateID!");
       }
-    }, 60000);
-  }, []);
+    }, 30000);
+
+    return () => clearInterval(intervalID);
+  }, [autoReload]);
 
   return (
     <>
@@ -525,7 +523,7 @@ function App() {
             setInventory: setInventory,
             processedInventory: processedInventory,
             processedTransactions: processedTransactions,
-            setLastAction: setLastAction
+            setToastInfo: setToastInfo
           }}
         >
           <Main />
@@ -536,7 +534,7 @@ function App() {
         message={toastInfo.message}
         undoFunc={toastInfo.undoFunc}
         dismissFunc={() => {
-          setLastAction({ action: "", obj: {} });
+          setToastInfo({ ...toastInfo, triggered: false });
         }}
       />
     </>

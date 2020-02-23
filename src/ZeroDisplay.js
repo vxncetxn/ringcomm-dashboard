@@ -72,14 +72,14 @@ const AddRecordButton = styled.button`
   }
 `;
 
-const ZeroDisplayComp = ({ status }) => {
-  console.log("STATUS IN ZERO DISPLAY: ", status);
-
+const ZeroDisplayComp = ({ setAddRecordOpen }) => {
   return (
     <ZeroDisplay>
       <StyledEmptyIcon />
       <p>Oops, there is nothing here yet. Maybe add something?</p>
-      <AddRecordButton>Add Record</AddRecordButton>
+      <AddRecordButton onClick={() => setAddRecordOpen(true)}>
+        Add Record
+      </AddRecordButton>
     </ZeroDisplay>
   );
 };

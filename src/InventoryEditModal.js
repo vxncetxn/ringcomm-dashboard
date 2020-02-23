@@ -39,7 +39,7 @@ const InventoryEditModal = styled(Modal)`
 `;
 
 const InventoryEditModalComp = ({ dismissFunc }) => {
-  const { setInventory, processedInventory, setLastAction } = useContext(
+  const { setInventory, processedInventory, setToastInfo } = useContext(
     DataContext
   );
 
@@ -176,14 +176,16 @@ const InventoryEditModalComp = ({ dismissFunc }) => {
         }
       ]);
 
-      setLastAction({
-        action: `edit-inventory`,
-        obj: {}
+      setToastInfo({
+        triggered: true,
+        message: "Successfully updated inventory.",
+        persistent: false
       });
     } catch {
-      setLastAction({
-        action: `failure-edit-inventory`,
-        obj: {}
+      setToastInfo({
+        triggered: true,
+        message: "Failed to update inventory.",
+        persistent: false
       });
     }
   };

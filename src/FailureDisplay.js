@@ -46,7 +46,7 @@ const StyledExclamationIcon = styled(ExclamationIcon)`
   margin-bottom: 30px;
 `;
 
-const AddRecordButton = styled.button`
+const ReloadButton = styled.button`
   font-family: var(--font-primary);
   font-size: 22px;
   color: var(--color-accent-main);
@@ -77,7 +77,9 @@ const FailureDisplayComp = () => {
     <FailureDisplay>
       <StyledExclamationIcon />
       <p>Oops, something went wrong. Maybe try reloading?</p>
-      <AddRecordButton>Reload</AddRecordButton>
+      <ReloadButton onClick={() => window.location.reload()}>
+        Reload
+      </ReloadButton>
     </FailureDisplay>
   );
 };

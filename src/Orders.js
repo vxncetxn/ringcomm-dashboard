@@ -97,7 +97,7 @@ const StyledSortIcon = styled(SortIcon)`
   }
 `;
 
-const OrdersComp = () => {
+const OrdersComp = ({ setAddRecordOpen }) => {
   const { ordersFetchStatus, processedOrders } = useContext(DataContext);
   const { ordersSortCriteria, setOrdersSortCriteria } = useContext(
     SortCriteriaContext
@@ -204,7 +204,7 @@ const OrdersComp = () => {
                 );
               })
           ) : (
-            <ZeroDisplay status={ordersFetchStatus} />
+            <ZeroDisplay setAddRecordOpen={setAddRecordOpen} />
           )
         ) : ordersFetchStatus === "failure" ? (
           <FailureDisplay />
