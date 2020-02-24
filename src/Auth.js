@@ -13,6 +13,7 @@ import Floater from "./components/Floater";
 import Input from "./components/Input";
 import InputError from "./components/InputError";
 import DecisionButton from "./components/DecisionButton";
+import Spinner from "./components/Spinner";
 
 const Auth = styled.section`
   height: 100vh;
@@ -45,8 +46,15 @@ const AuthTitle = styled.h1`
 `;
 
 const AuthForm = styled.form`
-  & > div + div {
+  & > * + * {
     margin-top: 20px;
+  }
+
+  & > div:last-child {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    height: 50px;
   }
 
   & > div > label {
@@ -61,11 +69,6 @@ const AuthForm = styled.form`
 
 const AuthInput = styled(Input)`
   width: 100%;
-`;
-
-const AuthButton = styled(DecisionButton)`
-  display: block;
-  margin: 50px auto 0 auto;
 `;
 
 const AuthComp = () => {
@@ -97,6 +100,9 @@ const AuthComp = () => {
     signupPasswordError,
     setSignupPasswordError
   ] = useControlState("");
+
+  const [loginButtonState, setLoginButtonState] = useState("default");
+  const [signupButtonState, setSignupButtonState] = useState("default");
 
   const authorisedEmails = [
     "vance_tan@mymail.sutd.edu.sg",
@@ -145,65 +151,75 @@ const AuthComp = () => {
                   />
                   <InputError>{loginPasswordError}</InputError>
                 </div>
-                <AuthButton
-                  onClick={e => {
-                    e.preventDefault();
+                <div>
+                  {loginButtonState === "default" ? (
+                    <DecisionButton
+                      onClick={e => {
+                        e.preventDefault();
 
-                    let emailValidated = true;
-                    let passwordValidated = true;
+                        let emailValidated = true;
+                        let passwordValidated = true;
 
-                    if (validateFilled(loginEmailValue)) {
-                      if (validateEmail(loginEmailValue)) {
-                        setLoginEmailError("");
-                      } else {
-                        setLoginEmailError("This email is invalid");
-                        emailValidated = false;
-                      }
-                    } else {
-                      setLoginEmailError("This field is required");
-                      emailValidated = false;
-                    }
-
-                    if (validateFilled(loginPasswordValue)) {
-                      setLoginPasswordError("");
-                    } else {
-                      setLoginPasswordError("This field is required");
-                      passwordValidated = false;
-                    }
-
-                    if (emailValidated && passwordValidated) {
-                      loginUser(loginEmailValue, loginPasswordValue)
-                        .then(user => console.log("Success! Logged in!", user))
-                        .catch(err => {
-                          let msg;
-                          switch (err.message) {
-                            case "invalid_grant: No user found with this email":
-                              msg =
-                                "Login failed - email or password is wrong.";
-                              break;
-                            case "invalid_grant: Invalid Password":
-                              msg =
-                                "Login failed - email or password is wrong.";
-                              break;
-                            case "invalid_grant: Email not confirmed":
-                              msg =
-                                "Login failed - email address ownership has not been verified.";
-                              break;
-                            default:
-                              msg = "Login failed - something went wrong.";
+                        if (validateFilled(loginEmailValue)) {
+                          if (validateEmail(loginEmailValue)) {
+                            setLoginEmailError("");
+                          } else {
+                            setLoginEmailError("This email is invalid");
+                            emailValidated = false;
                           }
+                        } else {
+                          setLoginEmailError("This field is required");
+                          emailValidated = false;
+                        }
 
-                          setToastInfo({
-                            triggered: true,
-                            message: msg,
-                            persistent: true
-                          });
-                        });
-                    }
-                  }}
-                >
-                  Login To Dashboard
-                </AuthButton>
+                        if (validateFilled(loginPasswordValue)) {
+                          setLoginPasswordError("");
+                        } else {
+                          setLoginPasswordError("This field is required");
+                          passwordValidated = false;
+                        }
+
+                        if (emailValidated && passwordValidated) {
+                          setLoginButtonState("loading");
+                          loginUser(loginEmailValue, loginPasswordValue)
+                            .then(user =>
+                              console.log("Success! Logged in!", user)
+                            )
+                            .catch(err => {
+                              let msg;
+                              switch (err.message) {
+                                case "invalid_grant: No user found with this email":
+                                  msg =
+                                    "Login failed - email or password is wrong.";
+                                  break;
+                                case "invalid_grant: Invalid Password":
+                                  msg =
+                                    "Login failed - email or password is wrong.";
+                                  break;
+                                case "invalid_grant: Email not confirmed":
+                                  msg =
+                                    "Login failed - email address ownership has not been verified.";
+                                  break;
+                                default:
+                                  msg = "Login failed - something went wrong.";
+                              }
+
+                              setToastInfo({
+                                triggered: true,
+                                message: msg,
+                                persistent: true
+                              });
+                              setLoginButtonState("default");
+                            });
+                        }
+                      }}
+                    >
+                      Login To Dashboard
+                    </DecisionButton>
+                  ) : (
+                    <Spinner />
+                  )}
+                </div>
               </AuthForm>
             </>
           ) : (
@@ -239,78 +255,88 @@ const AuthComp = () => {
                   />
                   <InputError>{signupPasswordError}</InputError>
                 </div>
-                <AuthButton
-                  onClick={e => {
-                    e.preventDefault();
+                <div>
+                  {signupButtonState === "default" ? (
+                    <DecisionButton
+                      onClick={e => {
+                        e.preventDefault();
 
-                    let emailValidated = true;
-                    let passwordValidated = true;
+                        let emailValidated = true;
+                        let passwordValidated = true;
 
-                    if (validateFilled(signupEmailValue)) {
-                      if (validateEmail(signupEmailValue)) {
-                        setSignupEmailError("");
-                      } else {
-                        setSignupEmailError("This email is invalid");
-                        emailValidated = false;
-                      }
-                    } else {
-                      setSignupEmailError("This field is required");
-                      emailValidated = false;
-                    }
+                        if (validateFilled(signupEmailValue)) {
+                          if (validateEmail(signupEmailValue)) {
+                            setSignupEmailError("");
+                          } else {
+                            setSignupEmailError("This email is invalid");
+                            emailValidated = false;
+                          }
+                        } else {
+                          setSignupEmailError("This field is required");
+                          emailValidated = false;
+                        }
 
-                    if (validateFilled(signupPasswordValue)) {
-                      setSignupPasswordError("");
-                    } else {
-                      setSignupPasswordError("This field is required");
-                      passwordValidated = false;
-                    }
+                        if (validateFilled(signupPasswordValue)) {
+                          setSignupPasswordError("");
+                        } else {
+                          setSignupPasswordError("This field is required");
+                          passwordValidated = false;
+                        }
 
-                    if (emailValidated && passwordValidated) {
-                      if (authorisedEmails.includes(signupEmailValue)) {
-                        signupUser(
-                          signupEmailValue,
-                          signupPasswordValue,
-                          {},
-                          false
-                        )
-                          .then(() =>
+                        if (emailValidated && passwordValidated) {
+                          if (authorisedEmails.includes(signupEmailValue)) {
+                            setSignupButtonState("loading");
+                            signupUser(
+                              signupEmailValue,
+                              signupPasswordValue,
+                              {},
+                              false
+                            )
+                              .then(() => {
+                                setToastInfo({
+                                  triggered: true,
+                                  message:
+                                    "Sign up successful - check your email to verify email address ownership.",
+                                  persistent: false
+                                });
+                                setSignupButtonState("default");
+                              })
+                              .catch(err => {
+                                let msg;
+                                switch (err.message) {
+                                  case "A user with this email address has already been registered":
+                                    msg =
+                                      "Sign up failed - account with this email address already registered.";
+                                    break;
+                                  default:
+                                    msg =
+                                      "Sign up failed - something went wrong.";
+                                }
+
+                                setToastInfo({
+                                  triggered: true,
+                                  message: msg,
+                                  persistent: true
+                                });
+                                setSignupButtonState("default");
+                              });
+                          } else {
                             setToastInfo({
                               triggered: true,
                               message:
-                                "Sign up successful - check your email to verify email address ownership.",
-                              persistent: false
-                            })
-                          )
-                          .catch(err => {
-                            let msg;
-                            switch (err.message) {
-                              case "A user with this email address has already been registered":
-                                msg =
-                                  "Sign up failed - account with this email address already registered.";
-                                break;
-                              default:
-                                msg = "Sign up failed - something went wrong.";
-                            }
-
-                            setToastInfo({
-                              triggered: true,
-                              message: msg,
+                                "Sign up failed - email address has not been pre-authorized for sign up.",
                               persistent: true
                             });
-                          });
-                      } else {
-                        setToastInfo({
-                          triggered: true,
-                          message:
-                            "Sign up failed - email address has not been pre-authorized for sign up.",
-                          persistent: true
-                        });
-                      }
-                    }
-                  }}
-                >
-                  Sign Up
-                </AuthButton>
+                          }
+                        }
+                      }}
+                    >
+                      Sign Up
+                    </DecisionButton>
+                  ) : (
+                    <Spinner />
+                  )}
+                </div>
               </AuthForm>
             </>
           )}
