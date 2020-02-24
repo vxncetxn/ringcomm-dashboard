@@ -4,7 +4,7 @@ import styled from "styled-components";
 import ky from "ky";
 import { format } from "date-fns";
 
-import { DataContext } from "./Context";
+import { ToastContext, DataContext } from "./Context";
 
 import productMap from "./helpers/productMap";
 
@@ -132,7 +132,8 @@ const toggleActionsMenu = menuID => {
 };
 
 const OrdersItemComp = ({ order, id, checked, setChecked }) => {
-  const { orders, setOrders, setToastInfo } = useContext(DataContext);
+  const setToastInfo = useContext(ToastContext);
+  const { orders, setOrders } = useContext(DataContext);
 
   const [orderEditOpen, setOrderEditOpen] = useState(false);
   const [confirmationOpen, setConfirmationOpen] = useState(false);

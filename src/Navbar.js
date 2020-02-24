@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
+import { useIdentityContext } from "react-netlify-identity";
 
 import SettingsModal from "./SettingsModal";
 
@@ -102,11 +103,14 @@ const NavbarComp = ({
   searchCriteria,
   setSearchCriteria
 }) => {
+  const { user } = useIdentityContext();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <Navbar>
-      <NavItem style={{ marginRight: "auto" }}>LogoPlaceholder</NavItem>
+      <NavItem style={{ marginRight: "auto" }}>
+        Welcome, {user.user_metadata.full_name}
+      </NavItem>
       <NavItem className="non-mobile">
         <StyledSearchIcon />
         <input

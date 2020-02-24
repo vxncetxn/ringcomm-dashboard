@@ -3,8 +3,12 @@ import styled from "styled-components";
 
 const Input = styled.input`
   background-color: transparent;
-  border: none;
-  border-bottom: 1px dashed var(--color-accent-main);
+  // border: none;
+  // border-bottom: 1px dashed var(--color-accent-main);
+
+  border: 1px solid var(--color-accent-main);
+  padding: 5px;
+
   font-family: inherit;
   font-size: inherit;
   color: inherit;

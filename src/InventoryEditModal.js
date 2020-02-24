@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import ky from "ky";
 
-import { DataContext } from "./Context";
+import { ToastContext, DataContext } from "./Context";
 
 import Modal from "./components/Modal";
 import Quantity from "./components/Quantity";
@@ -39,9 +39,8 @@ const InventoryEditModal = styled(Modal)`
 `;
 
 const InventoryEditModalComp = ({ dismissFunc }) => {
-  const { setInventory, processedInventory, setToastInfo } = useContext(
-    DataContext
-  );
+  const setToastInfo = useContext(ToastContext);
+  const { setInventory, processedInventory } = useContext(DataContext);
 
   const [changesMade, setChangesMade] = useState(false);
   const [B8Field, setB8Field] = useState(0);

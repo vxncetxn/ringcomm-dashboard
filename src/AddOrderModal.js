@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import styled from "styled-components";
 import ky from "ky";
 
-import { DataContext } from "./Context";
+import { ToastContext, DataContext } from "./Context";
 
 import Modal from "./components/Modal";
 import Input from "./components/Input";
@@ -40,7 +40,8 @@ const AddOrderModal = styled(Modal)`
 `;
 
 const AddOrderModalComp = ({ dismissFunc }) => {
-  const { orders, setOrders, setToastInfo } = useContext(DataContext);
+  const setToastInfo = useContext(ToastContext);
+  const { orders, setOrders } = useContext(DataContext);
 
   const [changesMade, setChangesMade] = useState(false);
   const [nameField, setNameField] = useState("");

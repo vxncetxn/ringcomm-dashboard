@@ -16,7 +16,7 @@ const DecisionButton = styled.button`
     cursor: not-allowed;
 
     &:hover {
-      border-bottom: none;
+      border-bottom: 1px solid transparent;
     }
   }
 `;

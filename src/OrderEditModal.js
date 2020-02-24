@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import ky from "ky";
 
-import { DataContext } from "./Context";
+import { ToastContext, DataContext } from "./Context";
 
 import Modal from "./components/Modal";
 import Input from "./components/Input";
@@ -41,7 +41,8 @@ const OrderEditModal = styled(Modal)`
 `;
 
 const OrderEditModalComp = ({ order, dismissFunc }) => {
-  const { orders, setOrders, setLastAction } = useContext(DataContext);
+  const setToastInfo = useContext(ToastContext);
+  const { orders, setOrders } = useContext(DataContext);
 
   const [changesMade, setChangesMade] = useState(false);
   const [nameField, setNameField] = useState("");
@@ -159,14 +160,15 @@ const OrderEditModalComp = ({ order, dismissFunc }) => {
         })
       );
 
-      setLastAction({
-        action: `edit-order`,
-        obj: {}
+      setToastInfo({
+        triggered: true,
+        message: "Successfully updated order.",
+        persistent: false
       });
     } catch {
-      setLastAction({
-        action: `failure-edit-order`,
-        obj: {}
+      setToastInfo({
+        message: "Failed to update order.",
+        persistent: false
       });
     }
   };
