@@ -152,7 +152,7 @@ const FinancesItemComp = ({
   return (
     <TableRow
       id={id}
-      cols="5% 30% 20% 20% 15% 10%"
+      cols="5% 25% 20% 20% 20% 10%"
       checkFunc={checkTransaction}
       checked={checked}
       setChecked={setChecked}

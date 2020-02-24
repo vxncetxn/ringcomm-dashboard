@@ -7,6 +7,7 @@ import { ToastContext, DataContext } from "./Context";
 import Modal from "./components/Modal";
 import Quantity from "./components/Quantity";
 import DecisionButton from "./components/DecisionButton";
+import Spinner from "./components/Spinner";
 
 const InventoryEditModal = styled(Modal)`
   width: 400px;
@@ -20,6 +21,13 @@ const InventoryEditModal = styled(Modal)`
 
   & > div + div {
     margin-top: 40px;
+  }
+
+  & > div:last-child {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    height: 10px;
   }
 
   & > div > div {
@@ -50,6 +58,8 @@ const InventoryEditModalComp = ({ dismissFunc }) => {
   const [R10Field, setR10Field] = useState(0);
   const [R11Field, setR11Field] = useState(0);
 
+  const [buttonState, setButtonState] = useState("default");
+
   useEffect(() => {
     if (processedInventory) {
       setB8Field(processedInventory[0].stock);
@@ -62,6 +72,7 @@ const InventoryEditModalComp = ({ dismissFunc }) => {
   }, [processedInventory]);
 
   const editStock = async () => {
+    setButtonState("loading");
     try {
       await ky.put(`https://rc-inventory.herokuapp.com/product/update/batch`, {
         json: {
@@ -175,12 +186,14 @@ const InventoryEditModalComp = ({ dismissFunc }) => {
         }
       ]);
 
+      dismissFunc();
       setToastInfo({
         triggered: true,
         message: "Successfully updated inventory.",
         persistent: false
       });
     } catch {
+      dismissFunc();
       setToastInfo({
         triggered: true,
         message: "Failed to update inventory.",
@@ -255,19 +268,18 @@ const InventoryEditModalComp = ({ dismissFunc }) => {
         </div>
       </div>
       <div>
-        {changesMade ? (
-          <DecisionButton
-            onClick={() => {
-              editStock();
-              dismissFunc();
-            }}
-          >
-            Apply Changes
-          </DecisionButton>
+        {buttonState === "default" ? (
+          <>
+            {changesMade ? (
+              <DecisionButton onClick={editStock}>Apply Changes</DecisionButton>
+            ) : (
+              <DecisionButton disabled>Apply Changes</DecisionButton>
+            )}
+            <DecisionButton onClick={dismissFunc}>Cancel</DecisionButton>
+          </>
         ) : (
-          <DecisionButton disabled>Apply Changes</DecisionButton>
+          <Spinner />
         )}
-        <DecisionButton onClick={dismissFunc}>Cancel</DecisionButton>
       </div>
     </InventoryEditModal>
   );

@@ -56,10 +56,6 @@ const OverviewHead = styled.div`
   @media (max-width: 630px) {
     font-size: 14px;
   }
-
-  @media (max-width: 520px) {
-    font-size: 12px;
-  }
 `;
 
 const BarShimmer = styled(Shimmer)`
@@ -72,8 +68,6 @@ const VizShimmer = styled.div`
   height: ${dimensions.height}px;
   padding: 40px;
 
-  // border: 1px solid green;
-
   & > div + div {
     margin-top: 10%;
   }
@@ -82,16 +76,12 @@ const VizShimmer = styled.div`
 const Viz = styled.svg`
   width: 100%;
   height: ${dimensions.height}px;
-
-  // border: 1px solid green;
 `;
 
 const Legend = styled.ul`
   display: flex;
   flex-wrap: wrap;
   padding: 20px 40px;
-
-  // border: 1px solid red;
 `;
 
 const LegendItem = styled.li`

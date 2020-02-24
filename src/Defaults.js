@@ -109,12 +109,6 @@ const Defaults = createGlobalStyle`
       text-decoration: none;
     }
 
-    .non-mobile {
-      @media (max-width: 960px) {
-        display: none;
-      }
-    }
-
     .toast-animation-enter {
       transform: translate(-50%, 0);
     }

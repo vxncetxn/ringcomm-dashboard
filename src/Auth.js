@@ -33,7 +33,7 @@ const Auth = styled.section`
 `;
 
 const AuthTab = styled(Tab)`
-  align-self: end;
+  align-self: flex-end;
 `;
 
 const AuthBox = styled(Floater)`

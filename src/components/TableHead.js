@@ -12,6 +12,7 @@ const TableHead = styled.div`
   border-radius: 10px 10px 0 0;
   background-color: var(--color-element-light);
   transition: background-color 0.5s ease-out;
+  min-width: 370px;
 
   & > div,
   & > button {
@@ -33,15 +34,6 @@ const TableHead = styled.div`
 
   @media (max-width: 630px) {
     font-size: 14px;
-
-    & > div,
-    & > button {
-      padding: 12px;
-    }
-  }
-
-  @media (max-width: 520px) {
-    font-size: 12px;
 
     & > div,
     & > button {

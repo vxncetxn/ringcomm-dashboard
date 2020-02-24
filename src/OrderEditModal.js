@@ -7,8 +7,8 @@ import { ToastContext, DataContext } from "./Context";
 import Modal from "./components/Modal";
 import Input from "./components/Input";
 import Quantity from "./components/Quantity";
-// import Selector from "./components/Selector";
 import DecisionButton from "./components/DecisionButton";
+import Spinner from "./components/Spinner";
 
 const OrderEditModal = styled(Modal)`
   width: 400px;
@@ -22,6 +22,13 @@ const OrderEditModal = styled(Modal)`
 
   & > div + div {
     margin-top: 40px;
+  }
+
+  & > div:last-child {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    height: 10px;
   }
 
   & > div > div {
@@ -57,6 +64,8 @@ const OrderEditModalComp = ({ order, dismissFunc }) => {
   const [R11Field, setR11Field] = useState(0);
 
   //   const [statusField, setStatusField] = useState("");
+
+  const [buttonState, setButtonState] = useState("default");
 
   useEffect(() => {
     if (order) {
@@ -120,6 +129,7 @@ const OrderEditModalComp = ({ order, dismissFunc }) => {
       });
     }
 
+    setButtonState("loading");
     try {
       await ky.put(`https://rc-inventory.herokuapp.com/order/update`, {
         json: {
@@ -160,12 +170,14 @@ const OrderEditModalComp = ({ order, dismissFunc }) => {
         })
       );
 
+      dismissFunc();
       setToastInfo({
         triggered: true,
         message: "Successfully updated order.",
         persistent: false
       });
     } catch {
+      dismissFunc();
       setToastInfo({
         message: "Failed to update order.",
         persistent: false
@@ -284,19 +296,18 @@ const OrderEditModalComp = ({ order, dismissFunc }) => {
         </div> */}
       </div>
       <div>
-        {changesMade ? (
-          <DecisionButton
-            onClick={() => {
-              editOrder();
-              dismissFunc();
-            }}
-          >
-            Apply Changes
-          </DecisionButton>
+        {buttonState === "default" ? (
+          <>
+            {changesMade ? (
+              <DecisionButton onClick={editOrder}>Apply Changes</DecisionButton>
+            ) : (
+              <DecisionButton disabled>Apply Changes</DecisionButton>
+            )}
+            <DecisionButton onClick={dismissFunc}>Cancel</DecisionButton>
+          </>
         ) : (
-          <DecisionButton disabled>Apply Changes</DecisionButton>
+          <Spinner />
         )}
-        <DecisionButton onClick={dismissFunc}>Cancel</DecisionButton>
       </div>
     </OrderEditModal>
   );

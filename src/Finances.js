@@ -26,6 +26,11 @@ const Finances = styled.div`
     width: 100%;
     margin-top: 50px;
   }
+
+  @media (max-width: 630px) {
+    overflow-x: scroll;
+    max-width: calc(100vw - 40px);
+  }
 `;
 
 // const OrdersHead = styled.div`
@@ -108,10 +113,6 @@ const OrdersFoot = styled.div`
   @media (max-width: 630px) {
     font-size: 14px;
   }
-
-  @media (max-width: 520px) {
-    font-size: 12px;
-  }
 `;
 
 const OrdersList = styled.ul`
@@ -134,11 +135,6 @@ const StyledSortIcon = styled(SortIcon)`
     margin-left: 5px;
     width: 10px;
     height: 10px;
-  }
-
-  @media (max-width: 520px) {
-    width: 8px;
-    height: 8px;
   }
 `;
 
@@ -187,7 +183,7 @@ const FinancesComp = () => {
 
   return (
     <Finances>
-      <TableHead cols="5% 30% 20% 20% 15% 10%" setChecked={setChecked}>
+      <TableHead cols="5% 25% 20% 20% 20% 10%" setChecked={setChecked}>
         <button
           onClick={() =>
             financesSortCriteria === "Title Ascending"
@@ -205,7 +201,7 @@ const FinancesComp = () => {
               : setFinancesSortCriteria("Submitter Ascending")
           }
         >
-          <span>Submitter</span>
+          <span>POC</span>
           <StyledSortIcon />
         </button>
         <button
@@ -225,7 +221,7 @@ const FinancesComp = () => {
               : setFinancesSortCriteria("Amount Ascending")
           }
         >
-          <span>Amount</span>
+          <span>Amt.</span>
           <StyledSortIcon />
         </button>
         <div></div>

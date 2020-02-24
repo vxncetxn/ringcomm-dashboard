@@ -13,11 +13,12 @@ const Main = styled.div`
   margin: 0 auto;
 
   @media (max-width: 960px) {
+    padding: 50px;
     height: auto;
     flex-direction: column-reverse;
   }
 
-  @media (max-width: 520px) {
+  @media (max-width: 630px) {
     padding: 50px 20px;
   }
 `;

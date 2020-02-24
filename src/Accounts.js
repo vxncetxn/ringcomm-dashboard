@@ -19,12 +19,22 @@ const AccountsHead = styled.div`
   & > * + * {
     margin-left: 20px;
   }
+
+  @media (max-width: 960px) {
+    transform: translateY(0);
+  }
 `;
 
 const Accounts = styled.div`
   position: relative;
   width: 70%;
   height: 100%;
+
+  @media (max-width: 960px) {
+    width: 100%;
+    height: calc(100vh - 100px);
+    margin: 50px 0;
+  }
 `;
 
 const AddRecordButton = styled.button`
@@ -46,10 +56,6 @@ const AddRecordButton = styled.button`
 
   @media (max-width: 630px) {
     font-size: 14px;
-  }
-
-  @media (max-width: 520px) {
-    font-size: 12px;
   }
 `;
 

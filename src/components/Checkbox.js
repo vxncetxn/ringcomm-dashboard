@@ -8,13 +8,8 @@ const CheckboxWrapper = styled.div`
   height: 20px;
 
   @media (max-width: 630px) {
-    width: 16px;
-    height: 16px;
-  }
-
-  @media (max-width: 520px) {
-    width: 12px;
-    height: 12px;
+    width: 15px;
+    height: 15px;
   }
 `;
 

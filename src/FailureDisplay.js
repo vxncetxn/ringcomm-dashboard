@@ -31,12 +31,6 @@ const FailureDisplay = styled.div`
       font-size: 14px;
     }
   }
-
-  @media (max-width: 520px) {
-    & > p {
-      font-size: 12px;
-    }
-  }
 `;
 
 const StyledExclamationIcon = styled(ExclamationIcon)`
@@ -65,10 +59,6 @@ const ReloadButton = styled.button`
 
   @media (max-width: 630px) {
     font-size: 14px;
-  }
-
-  @media (max-width: 520px) {
-    font-size: 12px;
   }
 `;
 

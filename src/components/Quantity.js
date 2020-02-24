@@ -27,7 +27,12 @@ const QuantityComp = ({ value, onChange, ...others }) => {
       <button
         onClick={e => {
           const quantityInput = e.target.nextElementSibling;
-          setNativeValue(quantityInput, parseInt(quantityInput.value, 10) - 1);
+          if (parseInt(quantityInput.value, 10) > 0) {
+            setNativeValue(
+              quantityInput,
+              parseInt(quantityInput.value, 10) - 1
+            );
+          }
         }}
       >
         -

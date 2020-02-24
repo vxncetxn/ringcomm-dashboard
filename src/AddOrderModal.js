@@ -8,6 +8,7 @@ import Modal from "./components/Modal";
 import Input from "./components/Input";
 import Quantity from "./components/Quantity";
 import DecisionButton from "./components/DecisionButton";
+import Spinner from "./components/Spinner";
 
 const AddOrderModal = styled(Modal)`
   width: 400px;
@@ -21,6 +22,13 @@ const AddOrderModal = styled(Modal)`
 
   & > div + div {
     margin-top: 40px;
+  }
+
+  & > div:last-child {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    height: 10px;
   }
 
   & > div > div {
@@ -54,6 +62,8 @@ const AddOrderModalComp = ({ dismissFunc }) => {
   const [R9Field, setR9Field] = useState(0);
   const [R10Field, setR10Field] = useState(0);
   const [R11Field, setR11Field] = useState(0);
+
+  const [buttonState, setButtonState] = useState("default");
 
   const addOrder = async () => {
     const newProducts = [];
@@ -100,6 +110,7 @@ const AddOrderModalComp = ({ dismissFunc }) => {
       });
     }
 
+    setButtonState("loading");
     try {
       await ky.post(`https://rc-inventory.herokuapp.com/order/insert`, {
         json: {
@@ -137,12 +148,14 @@ const AddOrderModalComp = ({ dismissFunc }) => {
         }
       ]);
 
+      dismissFunc();
       setToastInfo({
         triggered: true,
         action: "Successfully added order.",
         persistent: false
       });
     } catch {
+      dismissFunc();
       setToastInfo({
         triggered: true,
         action: "Failed to add order.",
@@ -250,19 +263,18 @@ const AddOrderModalComp = ({ dismissFunc }) => {
         </div>
       </div>
       <div>
-        {changesMade ? (
-          <DecisionButton
-            onClick={() => {
-              addOrder();
-              dismissFunc();
-            }}
-          >
-            Add Order
-          </DecisionButton>
+        {buttonState === "default" ? (
+          <>
+            {changesMade ? (
+              <DecisionButton onClick={addOrder}>Add Order</DecisionButton>
+            ) : (
+              <DecisionButton disabled>Add Order</DecisionButton>
+            )}
+            <DecisionButton onClick={dismissFunc}>Cancel</DecisionButton>
+          </>
         ) : (
-          <DecisionButton disabled>Add Order</DecisionButton>
+          <Spinner />
         )}
-        <DecisionButton onClick={dismissFunc}>Cancel</DecisionButton>
       </div>
     </AddOrderModal>
   );

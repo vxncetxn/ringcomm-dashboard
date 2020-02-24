@@ -28,14 +28,6 @@ const OrdersItemShimmer = styled.div`
       padding: 12px;
     }
   }
-
-  @media (max-width: 520px) {
-    font-size: 12px;
-
-    & > pidv {
-      padding: 7px;
-    }
-  }
 `;
 
 const ShimmerStandard = styled(Shimmer)`

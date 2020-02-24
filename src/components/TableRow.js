@@ -4,9 +4,10 @@ import styled from "styled-components";
 import Checkbox from "./Checkbox";
 
 const TableRow = styled.div`
-  overflow-x: hidden;
   font-family: var(--font-primary);
   font-size: 22px;
+  overflow-x: visible;
+  min-width: 370px;
 
   @media (max-width: 1440px) {
     font-size: 16px;
@@ -15,18 +16,16 @@ const TableRow = styled.div`
   @media (max-width: 630px) {
     font-size: 14px;
   }
-
-  @media (max-width: 520px) {
-    font-size: 12px;
-  }
 `;
 
 const TableRowTrigger = styled.div`
   display: grid;
   grid-template-columns: ${props => props.cols};
+  align-items: center;
   color: var(--color-text);
 
-  width: 100%;
+  min-width: 370px;
+  // width: 100%;
   text-align: left;
   cursor: pointer;
 
@@ -52,12 +51,6 @@ const TableRowTrigger = styled.div`
   @media (max-width: 630px) {
     & > p {
       padding: 12px;
-    }
-  }
-
-  @media (max-width: 520px) {
-    & > p {
-      padding: 7px;
     }
   }
 `;

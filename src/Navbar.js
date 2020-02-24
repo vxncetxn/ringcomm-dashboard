@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 import { useIdentityContext } from "react-netlify-identity";
 
+import { ToastContext } from "./Context";
+
 import SettingsModal from "./SettingsModal";
 
 import { ReactComponent as SettingsIcon } from "./icons/settings.svg";
+import { ReactComponent as LogoutIcon } from "./icons/logout.svg";
 import { ReactComponent as SearchIcon } from "./icons/search.svg";
-import { ReactComponent as HamburgerIcon } from "./icons/hamburger.svg";
 
 const Navbar = styled.ul`
   display: flex;
@@ -23,7 +25,26 @@ const Navbar = styled.ul`
     margin-left: 30px;
   }
 
-  @media (max-width: 520px) {
+  & > li:nth-child(1) {
+    margin-right: auto;
+  }
+
+  @media (max-width: 960px) {
+    & > li + li {
+      margin-left: 15px;
+    }
+
+    & > li:nth-child(1) {
+      display: none;
+    }
+
+    & > li:nth-child(2) {
+      margin-left: 0;
+      margin-right: auto;
+    }
+  }
+
+  @media (max-width: 630px) {
     padding: 0 20px;
   }
 `;
@@ -36,8 +57,6 @@ const NavItem = styled.li`
   font-family: var(--font-primary);
   font-size: 22px;
   color: var(--color-navbar-text);
-
-  // border: 1px solid red;
 
   & > img {
     width: 40px;
@@ -62,10 +81,6 @@ const NavItem = styled.li`
   @media (max-width: 630px) {
     font-size: 14px;
   }
-
-  @media (max-width: 520px) {
-    font-size: 12px;
-  }
 `;
 
 const StyledSettingsIcon = styled(SettingsIcon)`
@@ -73,6 +88,33 @@ const StyledSettingsIcon = styled(SettingsIcon)`
   width: 24px;
   height: 24px;
   cursor: pointer;
+
+  @media (max-width: 960px) {
+    width: 24px;
+    height: 24px;
+  }
+
+  @media (max-width: 630px) {
+    width: 24px;
+    height: 24px;
+  }
+`;
+
+const StyledLogoutIcon = styled(LogoutIcon)`
+  fill: var(--color-navbar-text);
+  width: 23px;
+  height: 23px;
+  cursor: pointer;
+
+  @media (max-width: 960px) {
+    width: 23px;
+    height: 23px;
+  }
+
+  @media (max-width: 630px) {
+    width: 23px;
+    height: 23px;
+  }
 `;
 
 const StyledSearchIcon = styled(SearchIcon)`
@@ -83,13 +125,11 @@ const StyledSearchIcon = styled(SearchIcon)`
   width: 17.5px;
 `;
 
-const StyledHamburgerIcon = styled(HamburgerIcon)`
-  display: none;
-  fill: var(--color-navbar-text);
-  width: 20px;
+const SearchBar = styled.input`
+  width: 400px;
 
-  @media (max-width: 960px) {
-    display: block;
+  @media (max-width: 630px) {
+    width: 200px;
   }
 `;
 
@@ -103,23 +143,27 @@ const NavbarComp = ({
   searchCriteria,
   setSearchCriteria
 }) => {
-  const { user } = useIdentityContext();
+  const setToastInfo = useContext(ToastContext);
+  const { user, logoutUser } = useIdentityContext();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <Navbar>
-      <NavItem style={{ marginRight: "auto" }}>
-        Welcome, {user.user_metadata.full_name}
+      <NavItem>
+        Welcome, Vance Tan
+        {/* {user.user_metadata.full_name
+          ? user.user_metadata.full_name
+          : user.email} */}
       </NavItem>
-      <NavItem className="non-mobile">
+      <NavItem>
         <StyledSearchIcon />
-        <input
+        <SearchBar
           value={searchVal}
           placeholder="Search"
           onChange={e => setSearchVal(e.target.value)}
-        ></input>
+        ></SearchBar>
       </NavItem>
-      <NavItem className="non-mobile">
+      <NavItem>
         <StyledSettingsIcon onClick={() => setSettingsOpen(true)} />
         {settingsOpen &&
           ReactDOM.createPortal(
@@ -135,11 +179,26 @@ const NavbarComp = ({
             document.querySelector("#modal")
           )}
       </NavItem>
-      <NavItem className="non-mobile">
-        <img src={require("./profile.jpg")} alt="Profile" />
-      </NavItem>
       <NavItem>
-        <StyledHamburgerIcon />
+        <StyledLogoutIcon
+          onClick={() => {
+            logoutUser()
+              .then(() =>
+                setToastInfo({
+                  triggered: true,
+                  message: "Successfully logged out.",
+                  persistent: false
+                })
+              )
+              .catch(() =>
+                setToastInfo({
+                  triggered: true,
+                  message: "Log out failed - something went wrong.",
+                  persistent: true
+                })
+              );
+          }}
+        />
       </NavItem>
     </Navbar>
   );

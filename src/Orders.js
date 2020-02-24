@@ -29,6 +29,10 @@ const Orders = styled.div`
     width: 100%;
     margin-top: 50px;
   }
+
+  @media (max-width: 630px) {
+    overflow-x: scroll;
+  }
 `;
 
 const OrdersFoot = styled.div`
@@ -40,6 +44,7 @@ const OrdersFoot = styled.div`
   padding: 15px 15px 15px calc(5% + 15px);
   margin-top: auto;
   transition: background-color 0.5s ease-out;
+  min-width: 370px;
 
   & > p {
     display: inline;
@@ -62,15 +67,12 @@ const OrdersFoot = styled.div`
   @media (max-width: 630px) {
     font-size: 14px;
   }
-
-  @media (max-width: 520px) {
-    font-size: 12px;
-  }
 `;
 
 const OrdersList = styled.ul`
   height: 100%;
   overflow-y: scroll;
+  min-width: 370px;
 `;
 
 const StyledSortIcon = styled(SortIcon)`
@@ -89,11 +91,6 @@ const StyledSortIcon = styled(SortIcon)`
     margin-left: 5px;
     width: 10px;
     height: 10px;
-  }
-
-  @media (max-width: 520px) {
-    width: 8px;
-    height: 8px;
   }
 `;
 

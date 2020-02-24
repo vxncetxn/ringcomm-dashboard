@@ -31,12 +31,6 @@ const ZeroDisplay = styled.div`
       font-size: 14px;
     }
   }
-
-  @media (max-width: 520px) {
-    & > p {
-      font-size: 12px;
-    }
-  }
 `;
 
 const StyledEmptyIcon = styled(EmptyIcon)`
@@ -65,10 +59,6 @@ const AddRecordButton = styled.button`
 
   @media (max-width: 630px) {
     font-size: 14px;
-  }
-
-  @media (max-width: 520px) {
-    font-size: 12px;
   }
 `;
 

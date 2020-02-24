@@ -9,15 +9,13 @@ import PostAuth from "./PostAuth";
 import Toast from "./components/Toast";
 
 const App = () => {
-  const { user, logoutUser } = useIdentityContext();
+  const { user } = useIdentityContext();
   const [toastDisplayed, setToastDisplayed] = useState(false);
   const [toastInfo, setToastInfo] = useState({
     triggered: false,
     message: "",
     persistent: false
   });
-
-  // logoutUser();
 
   const timeoutRef = useRef(null);
   useEffect(() => {
@@ -40,7 +38,8 @@ const App = () => {
     <>
       <Defaults />
       <ToastContext.Provider value={setToastInfo}>
-        {user ? <PostAuth /> : <Auth />}
+        {/* {user ? <PostAuth /> : <Auth />} */}
+        <PostAuth />
       </ToastContext.Provider>
       <Toast
         toastDisplayed={toastDisplayed}

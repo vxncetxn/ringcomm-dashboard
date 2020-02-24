@@ -18,10 +18,6 @@ const Tab = styled.div`
   @media (max-width: 630px) {
     font-size: 14px;
   }
-
-  @media (max-width: 520px) {
-    font-size: 12px;
-  }
 `;
 
 const TabButton = styled.button`
