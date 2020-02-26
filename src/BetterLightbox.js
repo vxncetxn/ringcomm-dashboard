@@ -6,11 +6,9 @@ const BetterLightbox = ({ images, clickedIdx, dismissFunc }) => {
 
   return (
     <Lightbox
-      mainSrc={require(`${images[initialIdx]}`)}
+      mainSrc={images[initialIdx]}
       nextSrc={
-        images.length > 1
-          ? require(`${images[(initialIdx + 1) % images.length]}`)
-          : null
+        images.length > 1 ? images[(initialIdx + 1) % images.length] : null
       }
       prevSrc={
         images.length > 1

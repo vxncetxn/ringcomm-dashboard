@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import styled from "styled-components";
 import ky from "ky";
+
+import { ToastContext, DataContext } from "./Context";
 
 import Modal from "./components/Modal";
 import Input from "./components/Input";
 import Upload from "./components/Upload";
 import DecisionButton from "./components/DecisionButton";
+import Spinner from "./components/Spinner";
 
 const AddFinanceModal = styled(Modal)`
   width: 400px;
@@ -19,6 +22,13 @@ const AddFinanceModal = styled(Modal)`
 
   & > div + div {
     margin-top: 40px;
+  }
+
+  & > div:last-child {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    height: 10px;
   }
 
   & > div > div {
@@ -37,12 +47,10 @@ const AddFinanceModal = styled(Modal)`
   }
 `;
 
-const AddFinanceModalComp = ({
-  setInventory,
-  processedInventory,
-  setLastAction,
-  dismissFunc
-}) => {
+const AddFinanceModalComp = ({ dismissFunc }) => {
+  const setToastInfo = useContext(ToastContext);
+  const { transactions, setTransactions } = useContext(DataContext);
+
   const [changesMade, setChangesMade] = useState(false);
   const [titleField, setTitleField] = useState("");
   const [submitterField, setSubmitterField] = useState("");
@@ -50,131 +58,57 @@ const AddFinanceModalComp = ({
   const [amountField, setAmountField] = useState("");
   const [uploadedRefs, setUploadedRefs] = useState([]);
 
-  //   const editStock = async () => {
-  //     const putResult = await ky.put(
-  //       `https://rc-inventory.herokuapp.com/product/update/batch`,
-  //       {
-  //         json: {
-  //           product: [
-  //             {
-  //               product_id: "0ae22821-d150-42bf-a7ae-d6c4e0a16fb4",
-  //               product_name: "SUTD wrist band",
-  //               product_size: 8,
-  //               product_price: 10,
-  //               stock: B8Field.value
-  //             },
-  //             {
-  //               product_id: "222b1dd6-ce67-47b8-b763-52da91581597",
-  //               product_name: "SUTD ring",
-  //               product_size: 7,
-  //               product_price: 15,
-  //               stock: R7Field.value
-  //             },
-  //             {
-  //               product_id: "117a72a4-83bd-4539-8cb9-ecc8bbddb3bc",
-  //               product_name: "SUTD ring",
-  //               product_size: 8,
-  //               product_price: 15,
-  //               stock: R8Field.value
-  //             },
-  //             {
-  //               product_id: "d75a6df2-1284-4e2f-808b-6e3753718d6d",
-  //               product_name: "SUTD ring",
-  //               product_size: 9,
-  //               product_price: 10,
-  //               stock: R9Field.value
-  //             },
-  //             {
-  //               product_id: "ad99a78d-3e2e-4718-9c59-c4913f9d612f",
-  //               product_name: "SUTD ring",
-  //               product_size: 10,
-  //               product_price: 15,
-  //               stock: R10Field.value
-  //             },
-  //             {
-  //               product_id: "9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2",
-  //               product_name: "SUTD ring",
-  //               product_size: 11,
-  //               product_price: 10,
-  //               stock: R11Field.value
-  //             }
-  //           ]
-  //         }
-  //       }
-  //     );
+  const [buttonState, setButtonState] = useState("default");
 
-  //     if (putResult.status === 200) {
-  //       setInventory([
-  //         {
-  //           size: "B7",
-  //           orders: {
-  //             Total: 0,
-  //             Pending: 0,
-  //             Processed: 0,
-  //             Collected: 0
-  //           },
-  //           stock: B8Field.value
-  //         },
-  //         {
-  //           size: "R5",
-  //           orders: {
-  //             Total: 0,
-  //             Pending: 0,
-  //             Processed: 0,
-  //             Collected: 0
-  //           },
-  //           stock: R7Field.value
-  //         },
-  //         {
-  //           size: "R6",
-  //           orders: {
-  //             Total: 0,
-  //             Pending: 0,
-  //             Processed: 0,
-  //             Collected: 0
-  //           },
-  //           stock: R8Field.value
-  //         },
-  //         {
-  //           size: "R7",
-  //           orders: {
-  //             Total: 0,
-  //             Pending: 0,
-  //             Processed: 0,
-  //             Collected: 0
-  //           },
-  //           stock: R9Field.value
-  //         },
-  //         {
-  //           size: "R8",
-  //           orders: {
-  //             Total: 0,
-  //             Pending: 0,
-  //             Processed: 0,
-  //             Collected: 0
-  //           },
-  //           stock: R10Field.value
-  //         },
-  //         {
-  //           size: "R9",
-  //           orders: {
-  //             Total: 0,
-  //             Pending: 0,
-  //             Processed: 0,
-  //             Collected: 0
-  //           },
-  //           stock: R11Field.value
-  //         }
-  //       ]);
+  const addFinance = async () => {
+    const newReference = await uploadedRefs.map(d => {
+      return {
+        data: d.slice(d.indexOf(",") + 1),
+        content_type: d.slice(5, d.indexOf(";"))
+      };
+    });
 
-  //       setLastAction({
-  //         action: `edit-inventory`,
-  //         obj: {}
-  //       });
-  //     } else {
-  //       // TODO
-  //     }
-  //   };
+    setButtonState("loading");
+    try {
+      await ky.post(`https://rc-inventory.herokuapp.com/finance/insert`, {
+        json: {
+          finance: {
+            title: titleField,
+            submitter: submitterField,
+            amount: parseFloat(amountField),
+            details: detailsField,
+            reference: newReference
+          }
+        }
+      });
+
+      setTransactions([
+        ...transactions,
+        {
+          title: titleField,
+          submitter: submitterField,
+          amount: parseFloat(amountField),
+          details: detailsField,
+          references: uploadedRefs
+        }
+      ]);
+
+      dismissFunc();
+      setToastInfo({
+        triggered: true,
+        message: "Successfully added transaction.",
+        persistent: false
+      });
+    } catch (err) {
+      console.log(err);
+      dismissFunc();
+      setToastInfo({
+        triggered: true,
+        message: "Failed to add transaction.",
+        persistent: false
+      });
+    }
+  };
 
   return (
     <AddFinanceModal dismissFunc={dismissFunc}>
@@ -232,19 +166,18 @@ const AddFinanceModalComp = ({
         </div>
       </div>
       <div>
-        {changesMade ? (
-          <DecisionButton
-            onClick={() => {
-              //   editStock();
-              dismissFunc();
-            }}
-          >
-            Add Record
-          </DecisionButton>
+        {buttonState === "default" ? (
+          <>
+            {changesMade ? (
+              <DecisionButton onClick={addFinance}>Add Record</DecisionButton>
+            ) : (
+              <DecisionButton disabled>Add Record</DecisionButton>
+            )}
+            <DecisionButton onClick={dismissFunc}>Cancel</DecisionButton>
+          </>
         ) : (
-          <DecisionButton disabled>Add Record</DecisionButton>
+          <Spinner />
         )}
-        <DecisionButton onClick={dismissFunc}>Cancel</DecisionButton>
       </div>
     </AddFinanceModal>
   );

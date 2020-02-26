@@ -6,36 +6,6 @@ import { ToastContext, DataContext, SortCriteriaContext } from "./Context";
 import Navbar from "./Navbar";
 import Main from "./Main";
 
-const transactions = [
-  {
-    transactionID: 1,
-    title: "Budget FY2019-20",
-    details: "Budget for FY2019 - 2020 cycle",
-    submitter: "Dhruv Mittal",
-    amount: 4000,
-    submitDate: new Date(),
-    references: ["./receipt-sample-one.jpg"]
-  },
-  {
-    transactionID: 2,
-    title: "MX8399 Chip Antenna x25",
-    details: "MX8399 Chip Antenna for testing on our prototypes",
-    submitter: "Zen",
-    amount: -32.5,
-    submitDate: new Date(),
-    references: ["./receipt-sample-two.png", "./receipt-sample-three.png"]
-  },
-  {
-    transactionID: 3,
-    title: "Silicon Sheet x3",
-    details: "Silicon sheets for testing on our prototypes",
-    submitter: "Zen",
-    amount: -56.7,
-    submitDate: new Date(),
-    references: ["./receipt-sample-three.png", "./receipt-sample-one.jpg"]
-  }
-];
-
 function PostAuthComp() {
   const setToastInfo = useContext(ToastContext);
   const [theme, setTheme] = useState(
@@ -52,6 +22,10 @@ function PostAuthComp() {
   const [inventoryFetchStatus, setInventoryFetchStatus] = useState("fetching");
   const [inventory, setInventory] = useState([]);
   const [processedInventory, setProcessedInventory] = useState([]);
+  const [transactionsFetchStatus, setTransactionsFetchStatus] = useState(
+    "fetching"
+  );
+  const [transactions, setTransactions] = useState([]);
   const [processedTransactions, setProcessedTransactions] = useState([]);
   const [searchVal, setSearchVal] = useState("");
   const [searchCriteria, setSearchCriteria] = useState(
@@ -79,6 +53,8 @@ function PostAuthComp() {
     document.documentElement.setAttribute("theme", theme);
   }, [theme]);
 
+  console.log("TRANSACTIONS: ", transactions);
+
   const formatOrders = raw => {
     return raw.order.map(d => {
       const products = {
@@ -101,6 +77,23 @@ function PostAuthComp() {
           Math.floor(Math.random() * 3)
         ],
         products: products
+      };
+    });
+  };
+
+  const formatTransactions = raw => {
+    return raw.map(d => {
+      const newReferences = d.reference.map(
+        r => `data:${r.content_type};base 64, ${r.data}`
+      );
+
+      return {
+        title: d.title,
+        details: d.details,
+        submitter: d.submitter,
+        amount: d.amount,
+        submitDate: d.submitted_date,
+        references: newReferences
       };
     });
   };
@@ -211,6 +204,12 @@ function PostAuthComp() {
         cacheName = "cachedOrders";
         break;
       case "Finance":
+        url = "https://rc-inventory.herokuapp.com/finance/get";
+        formatDataFunc = formatTransactions;
+        setDataFunc = setTransactions;
+        setDataFetchStatusFunc = setTransactionsFetchStatus;
+        updateIDName = "transactionsUpdateID";
+        cacheName = "cachedTransactions";
         break;
       case "Product":
         url = "https://rc-inventory.herokuapp.com/product/get";
@@ -281,17 +280,10 @@ function PostAuthComp() {
     initialDataFetchSeq("Product");
   }, []);
 
-  /* Initial useEffect for fetching Transactions */
-  // useEffect(() => {
-  //   initialDataFetchSeq(
-  //     "https://rc-inventory.herokuapp.com/order/get",
-  //     formatOrders,
-  //     setOrders,
-  //     setOrdersFetchStatus,
-  //     "ordersUpdateID",
-  //     "cachedOrders"
-  //   );
-  // }, []);
+  /* Initial useEffect for fetching Finance */
+  useEffect(() => {
+    initialDataFetchSeq("Finance");
+  }, []);
 
   /* useEffect for processing Orders */
   useEffect(() => {
@@ -496,6 +488,9 @@ function PostAuthComp() {
             inventoryFetchStatus: inventoryFetchStatus,
             setInventory: setInventory,
             processedInventory: processedInventory,
+            transactionsFetchStatus: transactionsFetchStatus,
+            transactions: transactions,
+            setTransactions: setTransactions,
             processedTransactions: processedTransactions
           }}
         >

@@ -106,16 +106,16 @@ async function fileListToBase64(fileList) {
 }
 
 const UploadComp = ({ field, setField, onChange, ...others }) => {
-  const [thumbnailsArr, setThumbnailsArr] = useState([]);
+  // const [thumbnailsArr, setThumbnailsArr] = useState([]);
 
-  useEffect(() => {
-    const convert = async () => {
-      const arrayOfBase64 = await fileListToBase64(field);
-      setThumbnailsArr(arrayOfBase64);
-    };
+  // useEffect(() => {
+  //   const convert = async () => {
+  //     const arrayOfBase64 = await fileListToBase64(field);
+  //     setThumbnailsArr(arrayOfBase64);
+  //   };
 
-    convert();
-  }, [field]);
+  //   convert();
+  // }, [field]);
 
   return (
     <UploadWrapper {...others}>
@@ -123,14 +123,14 @@ const UploadComp = ({ field, setField, onChange, ...others }) => {
         type="file"
         accept=".jpg, .jpeg, .png"
         multiple
-        onChange={e => {
+        onChange={async e => {
           onChange();
-          setField(Array.from(e.target.files));
+          setField(await fileListToBase64(Array.from(e.target.files)));
         }}
       />
       <Upload>Upload References</Upload>
       <ThumbnailGallery>
-        {thumbnailsArr.map((thumbnail, idx) => (
+        {field.map((thumbnail, idx) => (
           <Thumbnail>
             <img src={thumbnail} alt="" />
             <span
@@ -143,6 +143,19 @@ const UploadComp = ({ field, setField, onChange, ...others }) => {
             />
           </Thumbnail>
         ))}
+        {/* {thumbnailsArr.map((thumbnail, idx) => (
+          <Thumbnail>
+            <img src={thumbnail} alt="" />
+            <span
+              onClick={() =>
+                setField([
+                  ...field.slice(0, idx),
+                  ...field.slice(idx + 1, field.length)
+                ])
+              }
+            />
+          </Thumbnail>
+        ))} */}
       </ThumbnailGallery>
     </UploadWrapper>
   );

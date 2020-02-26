@@ -151,14 +151,14 @@ const AddOrderModalComp = ({ dismissFunc }) => {
       dismissFunc();
       setToastInfo({
         triggered: true,
-        action: "Successfully added order.",
+        message: "Successfully added order.",
         persistent: false
       });
     } catch {
       dismissFunc();
       setToastInfo({
         triggered: true,
-        action: "Failed to add order.",
+        message: "Failed to add order.",
         persistent: false
       });
     }

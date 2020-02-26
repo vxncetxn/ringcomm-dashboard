@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 import ky from "ky";
 import { format } from "date-fns";
+
+import { ToastContext, DataContext } from "./Context";
 
 import ConfirmationModal from "./ConfirmationModal";
 
@@ -122,6 +124,8 @@ const FinancesItemComp = ({
   setChecked,
   setLastAction
 }) => {
+  const { transactions, setTransactions } = useContext(DataContext);
+
   const [confirmationOpen, setConfirmationOpen] = useState(false);
 
   const checkTransaction = e => {
@@ -160,7 +164,7 @@ const FinancesItemComp = ({
         <>
           <p>{transaction.title}</p>
           <p>{transaction.submitter}</p>
-          <p>{format(new Date(transaction.submitDate), "do MMMM yyyy")}</p>
+          <p>{format(new Date(), "do MMMM yyyy")}</p>
           <p style={{ color: transaction.amount >= 0 ? "#40b11b" : "red" }}>
             {transaction.amount >= 0
               ? `+${transaction.amount}`
@@ -211,7 +215,7 @@ const FinancesItemComp = ({
           </div>
           <div>
             <span>Transaction Submission Date: </span>
-            <p>{format(new Date(transaction.submitDate), "do MMMM yyyy")}</p>
+            <p>{format(new Date(), "do MMMM yyyy")}</p>
           </div>
           <div>
             <span>Details: </span>
@@ -231,14 +235,6 @@ const FinancesItemComp = ({
               images={transaction.references}
               referenceContext={transaction.title}
             />
-            {/* <button onClick={() => setLightboxOpen(true)}>TEMPORARY</button>
-            {lightboxOpen && (
-              <BetterLightbox
-                images={transaction.references}
-                clickedIdx={0}
-                dismissFunc={() => setLightboxOpen(false)}
-              />
-            )} */}
           </div>
         </>
       }

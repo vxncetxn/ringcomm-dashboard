@@ -29,7 +29,7 @@ const ReferencesComp = ({ images, referenceContext }) => {
           return (
             <img
               key={idx}
-              src={require(`${image}`)}
+              src={image}
               alt={`Reference ${idx + 1} for ${referenceContext}`}
               onClick={() => {
                 setClickedIdx(idx);
