@@ -39,6 +39,10 @@ const AuthTab = styled(Tab)`
 const AuthBox = styled(Floater)`
   width: 450px;
   padding: 30px 20px;
+
+  @media (max-width: 630px) {
+    width: 300px;
+  }
 `;
 
 const AuthTitle = styled.h1`

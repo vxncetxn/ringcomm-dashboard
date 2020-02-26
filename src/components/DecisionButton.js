@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 const DecisionButton = styled.button`
   font-family: var(--font-primary);
-  font-size: 16px;
+  font-size: 18px;
   color: var(--color-text);
   border-bottom: 1px solid transparent;
 
@@ -18,6 +18,14 @@ const DecisionButton = styled.button`
     &:hover {
       border-bottom: 1px solid transparent;
     }
+  }
+
+  @media (max-width: 1440px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 630px) {
+    font-size: 14px;
   }
 `;
 

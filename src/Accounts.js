@@ -32,14 +32,13 @@ const Accounts = styled.div`
 
   @media (max-width: 960px) {
     width: 100%;
-    height: calc(100vh - 100px);
-    margin: 50px 0;
+    margin-top: 50px;
   }
 `;
 
 const AddRecordButton = styled.button`
   font-family: var(--font-primary);
-  font-size: 22px;
+  font-size: 18px;
   color: var(--color-accent-main);
   border: 1px solid var(--color-accent-main);
   background-color: var(--color-element-dark);

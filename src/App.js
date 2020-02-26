@@ -38,8 +38,8 @@ const App = () => {
     <>
       <Defaults />
       <ToastContext.Provider value={setToastInfo}>
-        {/* {user ? <PostAuth /> : <Auth />} */}
-        <PostAuth />
+        {user ? <PostAuth /> : <Auth />}
+        {/* <PostAuth /> */}
       </ToastContext.Provider>
       <Toast
         toastDisplayed={toastDisplayed}

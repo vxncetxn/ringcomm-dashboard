@@ -16,7 +16,7 @@ const ZeroDisplay = styled.div`
 
   & > p {
     font-family: var(--font-primary);
-    font-size: 22px;
+    font-size: 18px;
     color: var(--color-accent-main);
   }
 
@@ -42,7 +42,7 @@ const StyledEmptyIcon = styled(EmptyIcon)`
 
 const AddRecordButton = styled.button`
   font-family: var(--font-primary);
-  font-size: 22px;
+  font-size: 18px;
   color: var(--color-accent-main);
   border: 1px solid var(--color-accent-main);
   background-color: var(--color-element-dark);

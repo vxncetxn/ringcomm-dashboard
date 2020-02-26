@@ -3,8 +3,7 @@ import styled from "styled-components";
 
 const Tab = styled.div`
   font-family: var(--font-primary);
-  font-size: 22px;
-  //   border-radius: 10px;
+  font-size: 18px;
   border: 1px solid var(--color-accent-main);
 
   & > button + button {

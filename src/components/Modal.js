@@ -15,6 +15,12 @@ const Overlay = styled.div`
   align-items: center;
 `;
 
+const StyledFloater = styled(Floater)`
+  margin: 0 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: scroll;
+`;
+
 const ModalComp = ({ dismissFunc, children, ...others }) => {
   return (
     <Overlay
@@ -25,7 +31,7 @@ const ModalComp = ({ dismissFunc, children, ...others }) => {
         }
       }}
     >
-      <Floater {...others}>{children}</Floater>
+      <StyledFloater {...others}>{children}</StyledFloater>
     </Overlay>
   );
 };

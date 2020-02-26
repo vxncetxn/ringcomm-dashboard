@@ -37,7 +37,7 @@ const Orders = styled.div`
 
 const OrdersFoot = styled.div`
   font-family: var(--font-primary);
-  font-size: 22px;
+  font-size: 18px;
   color: var(--color-accent-main);
   border-radius: 0 0 10px 10px;
   background-color: var(--color-element-light);
@@ -70,9 +70,14 @@ const OrdersFoot = styled.div`
 `;
 
 const OrdersList = styled.ul`
+  overflow-x: hidden;
   height: 100%;
   overflow-y: scroll;
   min-width: 370px;
+
+  @media (max-width: 960px) {
+    min-height: calc(100vh - 100px - 100px);
+  }
 `;
 
 const StyledSortIcon = styled(SortIcon)`

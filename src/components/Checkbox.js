@@ -33,6 +33,13 @@ const CheckboxInput = styled.input`
       4px -6px 0 var(--color-text), 4px -8px 0 var(--color-text);
     transform: rotate(45deg);
   }
+
+  @media (max-width: 630px) {
+    &:checked + div::after {
+      left: 2px;
+      top: 5px;
+    }
+  }
 `;
 
 const Checkbox = styled.div`

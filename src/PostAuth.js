@@ -72,7 +72,7 @@ function PostAuthComp() {
   const [financesSortCriteria, setFinancesSortCriteria] = useState(
     localStorage.getItem("financesSortCriteria")
       ? localStorage.getItem("financesSortCriteria")
-      : "Date Most Recent First"
+      : "Date Recent First"
   );
 
   useEffect(() => {
@@ -376,10 +376,10 @@ function PostAuthComp() {
     if (transactions.length) {
       let processed = JSON.parse(JSON.stringify(transactions));
       switch (financesSortCriteria) {
-        case "Date Most Recent First":
+        case "Date Recent First":
           processed.sort((a, b) => a.submitDate - b.submitDate);
           break;
-        case "Date Most Recent Last":
+        case "Date Recent Last":
           processed.sort((a, b) => b.submitDate - a.submitDate);
           break;
         case "Title Ascending":
@@ -388,10 +388,10 @@ function PostAuthComp() {
         case "Title Descending":
           processed.sort((a, b) => -a.title.localeCompare(b.title));
           break;
-        case "Submitter Ascending":
+        case "POC Ascending":
           processed.sort((a, b) => a.submitter.localeCompare(b.submitter));
           break;
-        case "Submitter Descending":
+        case "POC Descending":
           processed.sort((a, b) => -a.submitter.localeCompare(b.submitter));
           break;
         case "Amount Ascending":

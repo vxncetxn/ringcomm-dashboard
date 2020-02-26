@@ -55,7 +55,7 @@ const NavItem = styled.li`
   align-items: center;
   position: relative;
   font-family: var(--font-primary);
-  font-size: 22px;
+  font-size: 18px;
   color: var(--color-navbar-text);
 
   & > img {
@@ -150,10 +150,9 @@ const NavbarComp = ({
   return (
     <Navbar>
       <NavItem>
-        Welcome, Vance Tan
-        {/* {user.user_metadata.full_name
-          ? user.user_metadata.full_name
-          : user.email} */}
+        {user.user_metadata.full_name
+          ? `Welcome, ${user.user_metadata.full_name}!`
+          : "Welcome to RingDash!"}
       </NavItem>
       <NavItem>
         <StyledSearchIcon />

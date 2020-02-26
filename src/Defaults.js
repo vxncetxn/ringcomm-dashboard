@@ -110,17 +110,17 @@ const Defaults = createGlobalStyle`
     }
 
     .toast-animation-enter {
-      transform: translate(-50%, 0);
+      transform: translate(calc(50vw - 50%), 0);
     }
     .toast-animation-enter-active {
-      transform: translate(-50%, -130px);
+      transform: translate(calc(50vw - 50%), -130px);
       transition: transform 200ms;
     }
     .toast-animation-exit {
-      transform: translate(-50%, -130px);
+      transform: translate(calc(50vw - 50%), -130px);
     }
     .toast-animation-exit-active {
-      transform: translate(-50%, 0);
+      transform: translate(calc(50vw - 50%), 0);
       transition: transform 200ms;
     }
 

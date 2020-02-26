@@ -21,6 +21,10 @@ const SettingsModal = styled(Modal)`
     margin-bottom: 20px;
   }
 
+  & label + * {
+    margin-left: 10px;
+  }
+
   & > div + div {
     margin-top: 40px;
   }
@@ -30,6 +34,10 @@ const SettingsModal = styled(Modal)`
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    & > :not(label) {
+      flex-shrink: 0;
+    }
   }
 
   & > div > div + div {
@@ -167,10 +175,10 @@ const SettingsModalComp = ({
             options={[
               "Title Ascending",
               "Title Descending",
-              "Submitter Ascending",
-              "Submitter Descending",
-              "Date Most Recent First",
-              "Date Most Recent Last",
+              "POC Ascending",
+              "POC Descending",
+              "Date Recent First",
+              "Date Recent Last",
               "Amount Ascending",
               "Amount Descending"
             ]}
@@ -180,25 +188,6 @@ const SettingsModalComp = ({
           />
         </div>
       </div>
-      {/* <div>
-        <h3>Overview Displayed Metrics</h3>
-        <div>
-          <label htmlFor="">Pending</label>
-          <Checkbox name="" />
-        </div>
-        <div>
-          <label htmlFor="">Processed</label>
-          <Checkbox name="" />
-        </div>
-        <div>
-          <label htmlFor="">Collected</label>
-          <Checkbox name="" />
-        </div>
-        <div>
-          <label htmlFor="">Stock</label>
-          <Checkbox name="" />
-        </div>
-      </div> */}
       <div>
         <DecisionButton onClick={() => dismissFunc()}>Close</DecisionButton>
       </div>

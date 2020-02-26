@@ -32,7 +32,9 @@ const Overview = styled.div`
 `;
 
 let dimensions = {
-  width: window.matchMedia("(max-width: 960px)").matches
+  width: window.matchMedia("(max-width: 630px)").matches
+    ? window.innerWidth - 40
+    : window.matchMedia("(max-width: 960px)").matches
     ? window.innerWidth - 100
     : window.matchMedia("(max-width: 1920px)").matches
     ? (window.innerWidth - 100) * 0.25
@@ -42,7 +44,7 @@ let dimensions = {
 
 const OverviewHead = styled.div`
   font-family: var(--font-primary);
-  font-size: 22px;
+  font-size: 18px;
   color: var(--color-accent-main);
   padding: 15px;
   border-radius: 10px 10px 0 0;
@@ -119,59 +121,6 @@ const StyledMenuDotsIcon = styled(MenuDotsIcon)`
 
 const renderViz = (wrapper, data) => {
   select(".bounds").remove();
-
-  // const data = [
-  //   {
-  //     size: "XS",
-  //     orders: {
-  //       total: 16,
-  //       pending: 2,
-  //       processed: 11,
-  //       collected: 3
-  //     },
-  //     stock: 52
-  //   },
-  //   {
-  //     size: "S",
-  //     orders: {
-  //       total: 6,
-  //       pending: 0,
-  //       processed: 5,
-  //       collected: 1
-  //     },
-  //     stock: 33
-  //   },
-  //   {
-  //     size: "M",
-  //     orders: {
-  //       total: 24,
-  //       pending: 4,
-  //       processed: 20,
-  //       collected: 0
-  //     },
-  //     stock: 20
-  //   },
-  //   {
-  //     size: "L",
-  //     orders: {
-  //       total: 23,
-  //       pending: 5,
-  //       processed: 10,
-  //       collected: 8
-  //     },
-  //     stock: 12
-  //   },
-  //   {
-  //     size: "XL",
-  //     orders: {
-  //       total: 4,
-  //       pending: 1,
-  //       processed: 2,
-  //       collected: 1
-  //     },
-  //     stock: 22
-  //   }
-  // ];
 
   const bounds = wrapper
     .append("g")
@@ -274,7 +223,9 @@ const OverviewComp = () => {
 
   const onWindowResize = () => {
     dimensions = {
-      width: window.matchMedia("(max-width: 960px)").matches
+      width: window.matchMedia("(max-width: 630px)").matches
+        ? window.innerWidth - 40
+        : window.matchMedia("(max-width: 960px)").matches
         ? window.innerWidth - 100
         : window.matchMedia("(max-width: 1920px)").matches
         ? (window.innerWidth - 100) * 0.25

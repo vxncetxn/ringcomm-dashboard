@@ -33,64 +33,16 @@ const Finances = styled.div`
   }
 `;
 
-// const OrdersHead = styled.div`
-//   display: grid;
-//   grid-template-columns: 5% 15% 30% 20% 20% 10%;
-//   font-family: var(--font-primary);
-//   font-size: 22px;
-//   color: var(--color-accent-main);
-//   border-radius: 10px 10px 0 0;
-//   background-color: var(--color-element-light);
-//   transition: background-color 0.5s ease-out;
-
-//   // border-bottom: 1px solid var(--color-accent-main);
-
-//   & > div,
-//   & > button {
-//     padding: 15px;
-//     text-align: left;
-//   }
-
-//   & > button:hover {
-//     color: var(--color-text);
-//   }
-
-//   & > div > p {
-//     display: inline-block;
-//   }
-
-//   @media (max-width: 1440px) {
-//     font-size: 16px;
-//   }
-
-//   @media (max-width: 630px) {
-//     font-size: 14px;
-
-//     & > div,
-//     & > button {
-//       padding: 12px;
-//     }
-//   }
-
-//   @media (max-width: 520px) {
-//     font-size: 12px;
-
-//     & > div,
-//     & > button {
-//       padding: 7px;
-//     }
-//   }
-// `;
-
 const OrdersFoot = styled.div`
   font-family: var(--font-primary);
-  font-size: 22px;
+  font-size: 18px;
   color: var(--color-accent-main);
   border-radius: 0 0 10px 10px;
   background-color: var(--color-element-light);
   padding: 15px 15px 15px calc(5% + 15px);
   margin-top: auto;
   transition: background-color 0.5s ease-out;
+  min-width: 370px;
 
   & > p {
     display: inline;
@@ -116,7 +68,14 @@ const OrdersFoot = styled.div`
 `;
 
 const OrdersList = styled.ul`
+  overflow-x: hidden;
+  height: 100%;
   overflow-y: scroll;
+  min-width: 370px;
+
+  @media (max-width: 960px) {
+    min-height: calc(100vh - 100px - 100px);
+  }
 `;
 
 const StyledSortIcon = styled(SortIcon)`

@@ -5,7 +5,7 @@ import Checkbox from "./Checkbox";
 
 const TableRow = styled.div`
   font-family: var(--font-primary);
-  font-size: 22px;
+  font-size: 18px;
   overflow-x: visible;
   min-width: 370px;
 

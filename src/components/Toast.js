@@ -6,21 +6,39 @@ import DecisionButton from "./DecisionButton";
 
 const Toast = styled.div`
   position: fixed;
-  left: calc(50%);
+  left: 0;
   bottom: -50px;
   display: flex;
   justify-content: space-between;
-  transform: translate(-50%, -130px);
+  transform: translate(calc(50vw - 50%), -130px);
   font-family: var(--font-primary);
-  font-size: 16px;
+  font-size: 18px;
   color: var(--color-accent-main);
   border-radius: 20px;
   border: 1px solid var(--color-accent-main);
   background-color: var(--color-element-dark);
   padding: 10px 15px;
+  margin-right: 40px;
+
+  & > span + button {
+    margin-left: 50px;
+  }
 
   & > button + button {
     margin-left: 10px;
+  }
+
+  @media (max-width: 1440px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 630px) {
+    font-size: 14px;
+    padding: 5px 10px;
+
+    & > span + button {
+      margin-left: 20px;
+    }
   }
 `;
 
@@ -39,7 +57,7 @@ const ToastComp = ({
       unmountOnExit
     >
       <Toast {...others} id="toast">
-        <span style={{ marginRight: "50px" }}>{message}</span>
+        <span>{message}</span>
         {undoFunc ? (
           <DecisionButton
             onClick={() => {

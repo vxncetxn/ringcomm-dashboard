@@ -7,7 +7,7 @@ const TableHead = styled.div`
   display: grid;
   grid-template-columns: ${props => props.cols};
   font-family: var(--font-primary);
-  font-size: 22px;
+  font-size: 18px;
   color: var(--color-accent-main);
   border-radius: 10px 10px 0 0;
   background-color: var(--color-element-light);
