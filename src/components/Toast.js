@@ -19,6 +19,7 @@ const Toast = styled.div`
   background-color: var(--color-element-dark);
   padding: 10px 15px;
   margin-right: 40px;
+  z-index: 999;
 
   & > span + button {
     margin-left: 50px;
@@ -45,7 +46,7 @@ const Toast = styled.div`
 const ToastComp = ({
   toastDisplayed,
   message,
-  undoFunc,
+  otherFuncs,
   dismissFunc,
   ...others
 }) => {
@@ -58,15 +59,18 @@ const ToastComp = ({
     >
       <Toast {...others} id="toast">
         <span>{message}</span>
-        {undoFunc ? (
-          <DecisionButton
-            onClick={() => {
-              undoFunc();
-            }}
-          >
-            Undo
-          </DecisionButton>
-        ) : null}
+        {otherFuncs.map(d => {
+          return (
+            <DecisionButton
+              onClick={() => {
+                d.func();
+                dismissFunc();
+              }}
+            >
+              {d.label}
+            </DecisionButton>
+          );
+        })}
         <DecisionButton
           onClick={() => {
             dismissFunc();

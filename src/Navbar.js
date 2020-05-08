@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import styled from "styled-components";
 import { useIdentityContext } from "react-netlify-identity";
 
-import { ToastContext } from "./Context";
+import { ToastContext, SettingsContext } from "./Context";
 
 import SettingsModal from "./SettingsModal";
 
@@ -133,17 +133,10 @@ const SearchBar = styled.input`
   }
 `;
 
-const NavbarComp = ({
-  theme,
-  setTheme,
-  autoReload,
-  setAutoReload,
-  searchVal,
-  setSearchVal,
-  searchCriteria,
-  setSearchCriteria
-}) => {
+const NavbarComp = () => {
   const setToastInfo = useContext(ToastContext);
+  const { searchVal, setSearchVal } = useContext(SettingsContext);
+
   const { user, logoutUser } = useIdentityContext();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -166,15 +159,7 @@ const NavbarComp = ({
         <StyledSettingsIcon onClick={() => setSettingsOpen(true)} />
         {settingsOpen &&
           ReactDOM.createPortal(
-            <SettingsModal
-              dismissFunc={() => setSettingsOpen(false)}
-              theme={theme}
-              setTheme={setTheme}
-              autoReload={autoReload}
-              setAutoReload={setAutoReload}
-              searchCriteria={searchCriteria}
-              setSearchCriteria={setSearchCriteria}
-            />,
+            <SettingsModal dismissFunc={() => setSettingsOpen(false)} />,
             document.querySelector("#modal")
           )}
       </NavItem>
@@ -186,14 +171,16 @@ const NavbarComp = ({
                 setToastInfo({
                   triggered: true,
                   message: "Successfully logged out.",
-                  persistent: false
+                  persistent: false,
+                  otherFuncs: []
                 })
               )
               .catch(() =>
                 setToastInfo({
                   triggered: true,
                   message: "Log out failed - something went wrong.",
-                  persistent: true
+                  persistent: true,
+                  otherFuncs: []
                 })
               );
           }}

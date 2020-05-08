@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import ky from "ky";
+import { useQuery, useMutation, queryCache } from "react-query";
 
-import { ToastContext, DataContext } from "./Context";
+import fetchProduct from "./fetch/fetchProduct";
+
+import { ToastContext } from "./Context";
 
 import Modal from "./components/Modal";
 import Quantity from "./components/Quantity";
@@ -47,8 +50,8 @@ const InventoryEditModal = styled(Modal)`
 `;
 
 const InventoryEditModalComp = ({ dismissFunc }) => {
+  const { data: fetchProductData } = useQuery("Product", fetchProduct);
   const setToastInfo = useContext(ToastContext);
-  const { setInventory, processedInventory } = useContext(DataContext);
 
   const [changesMade, setChangesMade] = useState(false);
   const [B8Field, setB8Field] = useState(0);
@@ -58,23 +61,9 @@ const InventoryEditModalComp = ({ dismissFunc }) => {
   const [R10Field, setR10Field] = useState(0);
   const [R11Field, setR11Field] = useState(0);
 
-  const [buttonState, setButtonState] = useState("default");
-
-  useEffect(() => {
-    if (processedInventory) {
-      setB8Field(processedInventory[0].stock);
-      setR7Field(processedInventory[1].stock);
-      setR8Field(processedInventory[2].stock);
-      setR9Field(processedInventory[3].stock);
-      setR10Field(processedInventory[4].stock);
-      setR11Field(processedInventory[5].stock);
-    }
-  }, [processedInventory]);
-
-  const editStock = async () => {
-    setButtonState("loading");
-    try {
-      await ky.put(`https://rc-inventory.herokuapp.com/product/update/batch`, {
+  const [editProductMutate, { status: editProductStatus }] = useMutation(
+    () =>
+      ky.put(`https://rc-inventory.herokuapp.com/product/update/batch`, {
         json: {
           product: [
             {
@@ -121,86 +110,41 @@ const InventoryEditModalComp = ({ dismissFunc }) => {
             }
           ]
         }
-      });
-
-      setInventory([
-        {
-          size: "B7",
-          orders: {
-            Total: 0,
-            Pending: 0,
-            Processed: 0,
-            Collected: 0
-          },
-          stock: B8Field
-        },
-        {
-          size: "R5",
-          orders: {
-            Total: 0,
-            Pending: 0,
-            Processed: 0,
-            Collected: 0
-          },
-          stock: R7Field
-        },
-        {
-          size: "R6",
-          orders: {
-            Total: 0,
-            Pending: 0,
-            Processed: 0,
-            Collected: 0
-          },
-          stock: R8Field
-        },
-        {
-          size: "R7",
-          orders: {
-            Total: 0,
-            Pending: 0,
-            Processed: 0,
-            Collected: 0
-          },
-          stock: R9Field
-        },
-        {
-          size: "R8",
-          orders: {
-            Total: 0,
-            Pending: 0,
-            Processed: 0,
-            Collected: 0
-          },
-          stock: R10Field
-        },
-        {
-          size: "R9",
-          orders: {
-            Total: 0,
-            Pending: 0,
-            Processed: 0,
-            Collected: 0
-          },
-          stock: R11Field
-        }
-      ]);
-
-      dismissFunc();
-      setToastInfo({
-        triggered: true,
-        message: "Successfully updated inventory.",
-        persistent: false
-      });
-    } catch {
-      dismissFunc();
-      setToastInfo({
-        triggered: true,
-        message: "Failed to update inventory.",
-        persistent: false
-      });
+      }),
+    {
+      onSuccess: async () => {
+        await queryCache.refetchQueries("updateID");
+        await queryCache.refetchQueries("Product");
+        dismissFunc();
+        setToastInfo({
+          triggered: true,
+          message: "Successfully updated inventory.",
+          persistent: false,
+          otherFuncs: []
+        });
+      },
+      onError: () => {
+        dismissFunc();
+        setToastInfo({
+          triggered: true,
+          message: "Failed to update inventory.",
+          persistent: false,
+          otherFuncs: []
+        });
+      }
     }
-  };
+  );
+
+  useEffect(() => {
+    if (fetchProductData) {
+      setB8Field(fetchProductData[0].stock);
+      setR7Field(fetchProductData[1].stock);
+      setR8Field(fetchProductData[2].stock);
+      setR9Field(fetchProductData[3].stock);
+      setR10Field(fetchProductData[4].stock);
+      setR11Field(fetchProductData[5].stock);
+    }
+  }, [fetchProductData]);
 
   return (
     <InventoryEditModal dismissFunc={dismissFunc}>
@@ -268,17 +212,19 @@ const InventoryEditModalComp = ({ dismissFunc }) => {
         </div>
       </div>
       <div>
-        {buttonState === "default" ? (
+        {editProductStatus === "loading" ? (
+          <Spinner />
+        ) : (
           <>
             {changesMade ? (
-              <DecisionButton onClick={editStock}>Apply Changes</DecisionButton>
+              <DecisionButton onClick={editProductMutate}>
+                Apply Changes
+              </DecisionButton>
             ) : (
               <DecisionButton disabled>Apply Changes</DecisionButton>
             )}
             <DecisionButton onClick={dismissFunc}>Cancel</DecisionButton>
           </>
-        ) : (
-          <Spinner />
         )}
       </div>
     </InventoryEditModal>

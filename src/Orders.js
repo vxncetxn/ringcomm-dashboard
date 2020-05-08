@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
+import { useQuery } from "react-query";
 
-import { DataContext, SortCriteriaContext } from "./Context";
+import fetchOrder from "./fetch/fetchOrder";
+
+import { SettingsContext } from "./Context";
 
 import TableHead from "./components/TableHead";
 import OrdersItem from "./OrdersItem";
-// import Checkbox from "./components/Checkbox";
+import Checkbox from "./components/Checkbox";
 import OrdersItemShimmer from "./OrdersItemShimmer";
 import ZeroDisplay from "./ZeroDisplay";
 import FailureDisplay from "./FailureDisplay";
@@ -100,15 +103,70 @@ const StyledSortIcon = styled(SortIcon)`
 `;
 
 const OrdersComp = ({ setAddRecordOpen }) => {
-  const { ordersFetchStatus, processedOrders } = useContext(DataContext);
-  const { ordersSortCriteria, setOrdersSortCriteria } = useContext(
-    SortCriteriaContext
+  const { status: fetchOrderStatus, data: fetchOrderData } = useQuery(
+    "Order",
+    fetchOrder
   );
+
+  const {
+    searchVal,
+    searchCriteria,
+    ordersSortCriteria,
+    setOrdersSortCriteria
+  } = useContext(SettingsContext);
 
   const [numEntries, setNumEntries] = useState(10);
   const [numPages, setNumPages] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [checked, setChecked] = useState([]);
+
+  const processOrders = raw => {
+    const processed = raw.slice();
+
+    if (searchVal) {
+      const loweredSearchVal = searchVal.toLowerCase();
+      processed = processed.filter(
+        order =>
+          (searchCriteria.name
+            ? order.name.toLowerCase().includes(loweredSearchVal)
+            : false) ||
+          (searchCriteria.studentID
+            ? order.studentID.toLowerCase().includes(loweredSearchVal)
+            : false) ||
+          (searchCriteria.status
+            ? order.status.toLowerCase().includes(loweredSearchVal)
+            : false) ||
+          (searchCriteria.email
+            ? order.email.toLowerCase().includes(loweredSearchVal)
+            : false)
+      );
+    }
+
+    switch (ordersSortCriteria) {
+      case "No. Ascending":
+        processed.sort((a, b) => a.orderID - b.orderID);
+        break;
+      case "No. Descending":
+        processed.sort((a, b) => b.orderID - a.orderID);
+        break;
+      case "Name Ascending":
+        processed.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "Name Descending":
+        processed.sort((a, b) => -a.name.localeCompare(b.name));
+        break;
+      case "ID Ascending":
+        processed.sort((a, b) => a.studentID.localeCompare(b.studentID));
+        break;
+      case "ID Descending":
+        processed.sort((a, b) => -a.studentID.localeCompare(b.studentID));
+        break;
+      default:
+        processed.sort((a, b) => a.status.localeCompare(b.status));
+    }
+
+    return processed;
+  };
 
   const changePage = option => {
     if (option === "next") {
@@ -122,27 +180,23 @@ const OrdersComp = ({ setAddRecordOpen }) => {
     }
   };
 
-  const checkAllOrders = checkedVal => {
-    if (checkedVal) {
-      document
-        .querySelectorAll(".order-item-checkbox")
-        .forEach(checkbox => (checkbox.checked = true));
-      setChecked(processedOrders);
-    } else {
-      document
-        .querySelectorAll(".order-item-checkbox")
-        .forEach(checkbox => (checkbox.checked = false));
-      setChecked([]);
-    }
-  };
+  // const checkAllOrders = checkedVal => {
+  //   if (checkedVal) {
+  //     document
+  //       .querySelectorAll(".order-item-checkbox")
+  //       .forEach(checkbox => (checkbox.checked = true));
+  //     setChecked(processedOrders);
+  //   } else {
+  //     document
+  //       .querySelectorAll(".order-item-checkbox")
+  //       .forEach(checkbox => (checkbox.checked = false));
+  //     setChecked([]);
+  //   }
+  // };
 
   useEffect(() => {
-    // processedOrders
-    //   ? setNumPages(Math.ceil(processedOrders.length / numEntries))
-    //   : setNumPages(1);
-
-    setNumPages(Math.ceil(processedOrders.length / numEntries));
-  }, [processedOrders, numEntries]);
+    setNumPages(Math.ceil(fetchOrderData?.length / numEntries));
+  }, [fetchOrderData, numEntries]);
 
   return (
     <Orders>
@@ -187,9 +241,9 @@ const OrdersComp = ({ setAddRecordOpen }) => {
         <div></div>
       </TableHead>
       <OrdersList>
-        {ordersFetchStatus === "success" ? (
-          processedOrders.length ? (
-            processedOrders
+        {fetchOrderStatus === "success" ? (
+          fetchOrderData.length ? (
+            processOrders(fetchOrderData)
               .slice(
                 0 + (currentPage - 1) * numEntries,
                 numEntries + (currentPage - 1) * numEntries
@@ -208,7 +262,7 @@ const OrdersComp = ({ setAddRecordOpen }) => {
           ) : (
             <ZeroDisplay setAddRecordOpen={setAddRecordOpen} />
           )
-        ) : ordersFetchStatus === "failure" ? (
+        ) : fetchOrderStatus === "error" ? (
           <FailureDisplay />
         ) : (
           <>
@@ -227,7 +281,7 @@ const OrdersComp = ({ setAddRecordOpen }) => {
             type="number"
             value={numEntries}
             min="1"
-            max={Math.min(processedOrders?.length, 50)}
+            max={Math.min(fetchOrderData?.length, 50)}
             onChange={e => {
               setNumEntries(parseInt(e.target.value, 10));
               setCurrentPage(1);

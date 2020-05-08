@@ -4,7 +4,7 @@ import styled from "styled-components";
 import ky from "ky";
 import { format } from "date-fns";
 
-import { ToastContext, DataContext } from "./Context";
+import { ToastContext } from "./Context";
 
 import ConfirmationModal from "./ConfirmationModal";
 
@@ -124,8 +124,6 @@ const FinancesItemComp = ({
   setChecked,
   setLastAction
 }) => {
-  const { transactions, setTransactions } = useContext(DataContext);
-
   const [confirmationOpen, setConfirmationOpen] = useState(false);
 
   const checkTransaction = e => {

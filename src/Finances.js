@@ -1,11 +1,16 @@
 import React, { useState, useContext } from "react";
 import styled from "styled-components";
+import { useQuery } from "react-query";
 
-import { DataContext, SortCriteriaContext } from "./Context";
+import fetchFinance from "./fetch/fetchFinance";
+
+import { SettingsContext } from "./Context";
 
 import TableHead from "./components/TableHead";
 import FinancesItem from "./FinancesItem";
 import OrdersItemShimmer from "./OrdersItemShimmer";
+import ZeroDisplay from "./ZeroDisplay";
+import FailureDisplay from "./FailureDisplay";
 
 import { ReactComponent as SortIcon } from "./icons/sort.svg";
 
@@ -98,15 +103,51 @@ const StyledSortIcon = styled(SortIcon)`
 `;
 
 const FinancesComp = () => {
-  const { processedTransactions } = useContext(DataContext);
+  const { status: fetchFinanceStatus, data: fetchFinanceData } = useQuery(
+    "Finance",
+    fetchFinance
+  );
+
   const { financesSortCriteria, setFinancesSortCriteria } = useContext(
-    SortCriteriaContext
+    SettingsContext
   );
 
   const [numEntries, setNumEntries] = useState(10);
   const [numPages, setNumPages] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [checked, setChecked] = useState([]);
+
+  const processFinance = raw => {
+    const processed = raw.slice();
+
+    switch (financesSortCriteria) {
+      case "Date Recent First":
+        processed.sort((a, b) => a.submitDate - b.submitDate);
+        break;
+      case "Date Recent Last":
+        processed.sort((a, b) => b.submitDate - a.submitDate);
+        break;
+      case "Title Ascending":
+        processed.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case "Title Descending":
+        processed.sort((a, b) => -a.title.localeCompare(b.title));
+        break;
+      case "POC Ascending":
+        processed.sort((a, b) => a.submitter.localeCompare(b.submitter));
+        break;
+      case "POC Descending":
+        processed.sort((a, b) => -a.submitter.localeCompare(b.submitter));
+        break;
+      case "Amount Ascending":
+        processed.sort((a, b) => a.amount - b.amount);
+        break;
+      default:
+        processed.sort((a, b) => b.amount - a.amount);
+    }
+
+    return processed;
+  };
 
   const changePage = option => {
     if (option === "next") {
@@ -186,23 +227,29 @@ const FinancesComp = () => {
         <div></div>
       </TableHead>
       <OrdersList>
-        {processedTransactions ? (
-          processedTransactions
-            .slice(
-              0 + (currentPage - 1) * numEntries,
-              numEntries + (currentPage - 1) * numEntries
-            )
-            .map((transaction, idx) => {
-              return (
-                <FinancesItem
-                  key={idx}
-                  transaction={transaction}
-                  id={`finances-item-${idx}`}
-                  checked={checked}
-                  setChecked={setChecked}
-                />
-              );
-            })
+        {fetchFinanceStatus === "success" ? (
+          fetchFinanceData.length ? (
+            processFinance(fetchFinanceData)
+              // .slice(
+              //   0 + (currentPage - 1) * numEntries,
+              //   numEntries + (currentPage - 1) * numEntries
+              // )
+              .map((transaction, idx) => {
+                return (
+                  <FinancesItem
+                    key={idx}
+                    transaction={transaction}
+                    id={`finances-item-${idx}`}
+                    checked={checked}
+                    setChecked={setChecked}
+                  />
+                );
+              })
+          ) : (
+            <ZeroDisplay />
+          )
+        ) : fetchFinanceStatus === "error" ? (
+          <FailureDisplay />
         ) : (
           <>
             <OrdersItemShimmer />

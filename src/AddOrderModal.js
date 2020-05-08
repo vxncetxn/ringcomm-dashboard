@@ -1,8 +1,9 @@
 import React, { useState, useContext } from "react";
 import styled from "styled-components";
 import ky from "ky";
+import { useMutation, queryCache } from "react-query";
 
-import { ToastContext, DataContext } from "./Context";
+import { ToastContext } from "./Context";
 
 import Modal from "./components/Modal";
 import Input from "./components/Input";
@@ -49,7 +50,6 @@ const AddOrderModal = styled(Modal)`
 
 const AddOrderModalComp = ({ dismissFunc }) => {
   const setToastInfo = useContext(ToastContext);
-  const { orders, setOrders } = useContext(DataContext);
 
   const [changesMade, setChangesMade] = useState(false);
   const [nameField, setNameField] = useState("");
@@ -63,56 +63,53 @@ const AddOrderModalComp = ({ dismissFunc }) => {
   const [R10Field, setR10Field] = useState(0);
   const [R11Field, setR11Field] = useState(0);
 
-  const [buttonState, setButtonState] = useState("default");
+  const [addOrderMutate, { status: addOrderStatus }] = useMutation(
+    () => {
+      const newProducts = [];
+      if (B8Field) {
+        newProducts.push({
+          order_id: 99,
+          quantity: B8Field,
+          product_id: "0ae22821-d150-42bf-a7ae-d6c4e0a16fb4"
+        });
+      }
+      if (R7Field) {
+        newProducts.push({
+          order_id: 99,
+          quantity: R7Field,
+          product_id: "222b1dd6-ce67-47b8-b763-52da91581597"
+        });
+      }
+      if (R8Field) {
+        newProducts.push({
+          order_id: 99,
+          quantity: R8Field,
+          product_id: "117a72a4-83bd-4539-8cb9-ecc8bbddb3bc"
+        });
+      }
+      if (R9Field) {
+        newProducts.push({
+          order_id: 99,
+          quantity: R9Field,
+          product_id: "d75a6df2-1284-4e2f-808b-6e3753718d6d"
+        });
+      }
+      if (R10Field) {
+        newProducts.push({
+          order_id: 99,
+          quantity: R10Field,
+          product_id: "ad99a78d-3e2e-4718-9c59-c4913f9d612f"
+        });
+      }
+      if (R11Field) {
+        newProducts.push({
+          order_id: 99,
+          quantity: R11Field,
+          product_id: "9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2"
+        });
+      }
 
-  const addOrder = async () => {
-    const newProducts = [];
-    if (B8Field) {
-      newProducts.push({
-        order_id: 99,
-        quantity: B8Field,
-        product_id: "0ae22821-d150-42bf-a7ae-d6c4e0a16fb4"
-      });
-    }
-    if (R7Field) {
-      newProducts.push({
-        order_id: 99,
-        quantity: R7Field,
-        product_id: "222b1dd6-ce67-47b8-b763-52da91581597"
-      });
-    }
-    if (R8Field) {
-      newProducts.push({
-        order_id: 99,
-        quantity: R8Field,
-        product_id: "117a72a4-83bd-4539-8cb9-ecc8bbddb3bc"
-      });
-    }
-    if (R9Field) {
-      newProducts.push({
-        order_id: 99,
-        quantity: R9Field,
-        product_id: "d75a6df2-1284-4e2f-808b-6e3753718d6d"
-      });
-    }
-    if (R10Field) {
-      newProducts.push({
-        order_id: 99,
-        quantity: R10Field,
-        product_id: "ad99a78d-3e2e-4718-9c59-c4913f9d612f"
-      });
-    }
-    if (R11Field) {
-      newProducts.push({
-        order_id: 99,
-        quantity: R11Field,
-        product_id: "9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2"
-      });
-    }
-
-    setButtonState("loading");
-    try {
-      await ky.post(`https://rc-inventory.herokuapp.com/order/insert`, {
+      return ky.post(`https://rc-inventory.herokuapp.com/order/insert`, {
         json: {
           customer: {
             customer_id: IDField,
@@ -125,44 +122,30 @@ const AddOrderModalComp = ({ dismissFunc }) => {
           }
         }
       });
-
-      setOrders([
-        ...orders,
-        {
-          orderID: 99,
-          name: nameField,
-          studentID: IDField,
-          email: emailField,
-          submitDate: new Date(),
-          status: ["Pending", "Processed", "Collected"][
-            Math.floor(Math.random() * 3)
-          ],
-          products: {
-            "0ae22821-d150-42bf-a7ae-d6c4e0a16fb4": B8Field,
-            "222b1dd6-ce67-47b8-b763-52da91581597": R7Field,
-            "117a72a4-83bd-4539-8cb9-ecc8bbddb3bc": R8Field,
-            "d75a6df2-1284-4e2f-808b-6e3753718d6d": R9Field,
-            "ad99a78d-3e2e-4718-9c59-c4913f9d612f": R10Field,
-            "9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2": R11Field
-          }
-        }
-      ]);
-
-      dismissFunc();
-      setToastInfo({
-        triggered: true,
-        message: "Successfully added order.",
-        persistent: false
-      });
-    } catch {
-      dismissFunc();
-      setToastInfo({
-        triggered: true,
-        message: "Failed to add order.",
-        persistent: false
-      });
+    },
+    {
+      onSuccess: async () => {
+        await queryCache.refetchQueries("updateID");
+        await queryCache.refetchQueries("Order");
+        dismissFunc();
+        setToastInfo({
+          triggered: true,
+          message: "Successfully added order.",
+          persistent: false,
+          otherFuncs: []
+        });
+      },
+      onError: () => {
+        dismissFunc();
+        setToastInfo({
+          triggered: true,
+          message: "Failed to add order.",
+          persistent: false,
+          otherFuncs: []
+        });
+      }
     }
-  };
+  );
 
   return (
     <AddOrderModal dismissFunc={dismissFunc}>
@@ -263,17 +246,19 @@ const AddOrderModalComp = ({ dismissFunc }) => {
         </div>
       </div>
       <div>
-        {buttonState === "default" ? (
+        {addOrderStatus === "loading" ? (
+          <Spinner />
+        ) : (
           <>
             {changesMade ? (
-              <DecisionButton onClick={addOrder}>Add Order</DecisionButton>
+              <DecisionButton onClick={addOrderMutate}>
+                Add Order
+              </DecisionButton>
             ) : (
               <DecisionButton disabled>Add Order</DecisionButton>
             )}
             <DecisionButton onClick={dismissFunc}>Cancel</DecisionButton>
           </>
-        ) : (
-          <Spinner />
         )}
       </div>
     </AddOrderModal>

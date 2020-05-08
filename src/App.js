@@ -6,6 +6,7 @@ import { ToastContext } from "./Context";
 import Defaults from "./Defaults";
 import Auth from "./Auth";
 import PostAuth from "./PostAuth";
+import NewPostAuth from "./NewPostAuth";
 import Toast from "./components/Toast";
 
 const App = () => {
@@ -14,7 +15,8 @@ const App = () => {
   const [toastInfo, setToastInfo] = useState({
     triggered: false,
     message: "",
-    persistent: false
+    persistent: false,
+    otherFuncs: []
   });
 
   const timeoutRef = useRef(null);
@@ -38,13 +40,13 @@ const App = () => {
     <>
       <Defaults />
       <ToastContext.Provider value={setToastInfo}>
-        {user ? <PostAuth /> : <Auth />}
+        {user ? <NewPostAuth /> : <Auth />}
         {/* <PostAuth /> */}
       </ToastContext.Provider>
       <Toast
         toastDisplayed={toastDisplayed}
         message={toastInfo.message}
-        undoFunc={toastInfo.undoFunc}
+        otherFuncs={toastInfo.otherFuncs}
         dismissFunc={() => {
           setToastInfo({ ...toastInfo, triggered: false });
         }}

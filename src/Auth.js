@@ -211,7 +211,8 @@ const AuthComp = () => {
                               setToastInfo({
                                 triggered: true,
                                 message: msg,
-                                persistent: true
+                                persistent: true,
+                                otherFuncs: []
                               });
                               setLoginButtonState("default");
                             });
@@ -301,7 +302,8 @@ const AuthComp = () => {
                                   triggered: true,
                                   message:
                                     "Sign up successful - check your email to verify email address ownership.",
-                                  persistent: false
+                                  persistent: false,
+                                  otherFuncs: []
                                 });
                                 setSignupButtonState("default");
                               })
@@ -320,7 +322,8 @@ const AuthComp = () => {
                                 setToastInfo({
                                   triggered: true,
                                   message: msg,
-                                  persistent: true
+                                  persistent: true,
+                                  otherFuncs: []
                                 });
                                 setSignupButtonState("default");
                               });
@@ -329,7 +332,8 @@ const AuthComp = () => {
                               triggered: true,
                               message:
                                 "Sign up failed - email address has not been pre-authorized for sign up.",
-                              persistent: true
+                              persistent: true,
+                              otherFuncs: []
                             });
                           }
                         }

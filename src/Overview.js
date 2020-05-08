@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
 import { select } from "d3-selection";
 import { max } from "d3-array";
 import { scaleLinear, scaleOrdinal } from "d3-scale";
+import { useQuery } from "react-query";
 
-import { DataContext } from "./Context";
+import fetchOrder from "./fetch/fetchOrder";
+import fetchProduct from "./fetch/fetchProduct";
 
 import InventoryEditModal from "./InventoryEditModal";
 
@@ -215,7 +217,37 @@ const renderViz = (wrapper, data) => {
 };
 
 const OverviewComp = () => {
-  const { inventoryFetchStatus, processedInventory } = useContext(DataContext);
+  const { status: fetchOrderStatus, data: fetchOrderData } = useQuery(
+    "Order",
+    fetchOrder
+  );
+  const { status: fetchProductStatus, data: fetchProductData } = useQuery(
+    "Product",
+    fetchProduct
+  );
+
+  const processProduct = raw => {
+    const processed = JSON.parse(JSON.stringify(raw));
+
+    if (fetchOrderStatus === "success") {
+      fetchOrderData.forEach(d => {
+        processed[0].orders[d.status] +=
+          d.products["0ae22821-d150-42bf-a7ae-d6c4e0a16fb4"];
+        processed[1].orders[d.status] +=
+          d.products["222b1dd6-ce67-47b8-b763-52da91581597"];
+        processed[2].orders[d.status] +=
+          d.products["117a72a4-83bd-4539-8cb9-ecc8bbddb3bc"];
+        processed[3].orders[d.status] +=
+          d.products["d75a6df2-1284-4e2f-808b-6e3753718d6d"];
+        processed[4].orders[d.status] +=
+          d.products["ad99a78d-3e2e-4718-9c59-c4913f9d612f"];
+        processed[5].orders[d.status] +=
+          d.products["9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2"];
+      });
+    }
+
+    return processed;
+  };
 
   const [inventoryEditOpen, setInventoryEditOpen] = useState(false);
 
@@ -233,8 +265,8 @@ const OverviewComp = () => {
       height: (window.innerHeight - 100 - 60) * 0.8
     };
 
-    if (processedInventory) {
-      renderViz(select(d3Ref.current), processedInventory);
+    if (fetchProductStatus === "success") {
+      renderViz(select(d3Ref.current), processProduct(fetchProductData));
     }
   };
 
@@ -246,7 +278,7 @@ const OverviewComp = () => {
     return () => {
       window.removeEventListener("resize", onWindowResize);
     };
-  }, [processedInventory]);
+  }, [fetchProductData]);
 
   return (
     <Overview>
@@ -256,9 +288,9 @@ const OverviewComp = () => {
           <StyledMenuDotsIcon onClick={() => setInventoryEditOpen(true)} />
         </button>
       </OverviewHead>
-      {inventoryFetchStatus !== "fetching" ? (
+      {fetchProductStatus === "success" ? (
         <Viz ref={d3Ref} />
-      ) : (
+      ) : fetchProductStatus === "loading" ? (
         <VizShimmer>
           {[...Array(6).keys()].map((_, idx) => (
             <BarShimmer
@@ -267,7 +299,7 @@ const OverviewComp = () => {
             />
           ))}
         </VizShimmer>
-      )}
+      ) : null}
       <Legend>
         <LegendItem>
           <LegendBadge color="var(--color-accent-pending)" />

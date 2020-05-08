@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import styled from "styled-components";
 
-import { SortCriteriaContext } from "./Context";
+import { SettingsContext } from "./Context";
 
 import Modal from "./components/Modal";
 import DecisionButton from "./components/DecisionButton";
@@ -45,21 +45,19 @@ const SettingsModal = styled(Modal)`
   }
 `;
 
-const SettingsModalComp = ({
-  dismissFunc,
-  theme,
-  setTheme,
-  autoReload,
-  setAutoReload,
-  searchCriteria,
-  setSearchCriteria
-}) => {
+const SettingsModalComp = ({ dismissFunc }) => {
   const {
+    theme,
+    setTheme,
+    autoReload,
+    setAutoReload,
+    searchCriteria,
+    setSearchCriteria,
     ordersSortCriteria,
     setOrdersSortCriteria,
     financesSortCriteria,
     setFinancesSortCriteria
-  } = useContext(SortCriteriaContext);
+  } = useContext(SettingsContext);
 
   const toggleTheme = checkedVal => {
     const newTheme = checkedVal ? "light" : "dark";

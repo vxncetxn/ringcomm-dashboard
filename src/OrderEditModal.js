@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import ky from "ky";
+import { useMutation, queryCache } from "react-query";
 
-import { ToastContext, DataContext } from "./Context";
+import { ToastContext } from "./Context";
 
 import Modal from "./components/Modal";
 import Input from "./components/Input";
@@ -49,7 +50,6 @@ const OrderEditModal = styled(Modal)`
 
 const OrderEditModalComp = ({ order, dismissFunc }) => {
   const setToastInfo = useContext(ToastContext);
-  const { orders, setOrders } = useContext(DataContext);
 
   const [changesMade, setChangesMade] = useState(false);
   const [nameField, setNameField] = useState("");
@@ -65,7 +65,88 @@ const OrderEditModalComp = ({ order, dismissFunc }) => {
 
   //   const [statusField, setStatusField] = useState("");
 
-  const [buttonState, setButtonState] = useState("default");
+  const [editOrderMutate, { status: editOrderStatus }] = useMutation(
+    () => {
+      const newProducts = [];
+      if (B8Field) {
+        newProducts.push({
+          order_id: order.orderID,
+          quantity: B8Field,
+          product_id: "0ae22821-d150-42bf-a7ae-d6c4e0a16fb4"
+        });
+      }
+      if (R7Field) {
+        newProducts.push({
+          order_id: order.orderID,
+          quantity: R7Field,
+          product_id: "222b1dd6-ce67-47b8-b763-52da91581597"
+        });
+      }
+      if (R8Field) {
+        newProducts.push({
+          order_id: order.orderID,
+          quantity: R8Field,
+          product_id: "117a72a4-83bd-4539-8cb9-ecc8bbddb3bc"
+        });
+      }
+      if (R9Field) {
+        newProducts.push({
+          order_id: order.orderID,
+          quantity: R9Field,
+          product_id: "d75a6df2-1284-4e2f-808b-6e3753718d6d"
+        });
+      }
+      if (R10Field) {
+        newProducts.push({
+          order_id: order.orderID,
+          quantity: R10Field,
+          product_id: "ad99a78d-3e2e-4718-9c59-c4913f9d612f"
+        });
+      }
+      if (R11Field) {
+        newProducts.push({
+          order_id: order.orderID,
+          quantity: R11Field,
+          product_id: "9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2"
+        });
+      }
+
+      return ky.put(`https://rc-inventory.herokuapp.com/order/updatez`, {
+        json: {
+          order_id: order.orderID,
+          description: "",
+          customer: {
+            customer_id: IDField,
+            full_name: nameField,
+            email: emailField
+          },
+          items: newProducts
+        }
+      });
+    },
+    {
+      onSuccess: async () => {
+        await queryCache.refetchQueries("updateID");
+        await queryCache.refetchQueries("Order");
+        dismissFunc();
+        setToastInfo({
+          triggered: true,
+          message: "Successfully updated order.",
+          persistent: false,
+          otherFuncs: []
+        });
+      },
+      onError: () => {
+        // dismissFunc();
+        setToastInfo({
+          triggered: true,
+          message: "Failed to update order.",
+          persistent: false,
+          otherFuncs: [{ label: "Retry", func: () => editOrderMutate() }]
+        });
+      }
+    }
+  );
 
   useEffect(() => {
     if (order) {
@@ -84,106 +165,7 @@ const OrderEditModalComp = ({ order, dismissFunc }) => {
     }
   }, [order]);
 
-  const editOrder = async () => {
-    const newProducts = [];
-    if (B8Field) {
-      newProducts.push({
-        order_id: order.orderID,
-        quantity: B8Field,
-        product_id: "0ae22821-d150-42bf-a7ae-d6c4e0a16fb4"
-      });
-    }
-    if (R7Field) {
-      newProducts.push({
-        order_id: order.orderID,
-        quantity: R7Field,
-        product_id: "222b1dd6-ce67-47b8-b763-52da91581597"
-      });
-    }
-    if (R8Field) {
-      newProducts.push({
-        order_id: order.orderID,
-        quantity: R8Field,
-        product_id: "117a72a4-83bd-4539-8cb9-ecc8bbddb3bc"
-      });
-    }
-    if (R9Field) {
-      newProducts.push({
-        order_id: order.orderID,
-        quantity: R9Field,
-        product_id: "d75a6df2-1284-4e2f-808b-6e3753718d6d"
-      });
-    }
-    if (R10Field) {
-      newProducts.push({
-        order_id: order.orderID,
-        quantity: R10Field,
-        product_id: "ad99a78d-3e2e-4718-9c59-c4913f9d612f"
-      });
-    }
-    if (R11Field) {
-      newProducts.push({
-        order_id: order.orderID,
-        quantity: R11Field,
-        product_id: "9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2"
-      });
-    }
-
-    setButtonState("loading");
-    try {
-      await ky.put(`https://rc-inventory.herokuapp.com/order/update`, {
-        json: {
-          order_id: order.orderID,
-          description: "",
-          customer: {
-            customer_id: IDField,
-            full_name: nameField,
-            email: emailField
-          },
-          items: newProducts
-        }
-      });
-
-      setOrders(
-        orders.map(d => {
-          if (d.orderID === order.orderID) {
-            return {
-              orderID: d.orderID,
-              name: nameField,
-              studentID: IDField,
-              email: emailField,
-              submitDate: d.submitDate,
-              status: "Processed",
-              //   status: statusField,
-              products: {
-                "0ae22821-d150-42bf-a7ae-d6c4e0a16fb4": B8Field,
-                "222b1dd6-ce67-47b8-b763-52da91581597": R7Field,
-                "117a72a4-83bd-4539-8cb9-ecc8bbddb3bc": R8Field,
-                "d75a6df2-1284-4e2f-808b-6e3753718d6d": R9Field,
-                "ad99a78d-3e2e-4718-9c59-c4913f9d612f": R10Field,
-                "9d2ed13e-d8dc-45cc-a462-c755a2cd9ff2": R11Field
-              }
-            };
-          } else {
-            return d;
-          }
-        })
-      );
-
-      dismissFunc();
-      setToastInfo({
-        triggered: true,
-        message: "Successfully updated order.",
-        persistent: false
-      });
-    } catch {
-      dismissFunc();
-      setToastInfo({
-        message: "Failed to update order.",
-        persistent: false
-      });
-    }
-  };
+  console.log(editOrderStatus);
 
   return (
     <OrderEditModal dismissFunc={dismissFunc}>
@@ -296,17 +278,19 @@ const OrderEditModalComp = ({ order, dismissFunc }) => {
         </div> */}
       </div>
       <div>
-        {buttonState === "default" ? (
+        {editOrderStatus === "loading" ? (
+          <Spinner />
+        ) : (
           <>
             {changesMade ? (
-              <DecisionButton onClick={editOrder}>Apply Changes</DecisionButton>
+              <DecisionButton onClick={editOrderMutate}>
+                Apply Changes
+              </DecisionButton>
             ) : (
               <DecisionButton disabled>Apply Changes</DecisionButton>
             )}
             <DecisionButton onClick={dismissFunc}>Cancel</DecisionButton>
           </>
-        ) : (
-          <Spinner />
         )}
       </div>
     </OrderEditModal>

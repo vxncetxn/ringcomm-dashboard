@@ -3,8 +3,9 @@ import ReactDOM from "react-dom";
 import styled from "styled-components";
 import ky from "ky";
 import { format } from "date-fns";
+import { useMutation, queryCache } from "react-query";
 
-import { ToastContext, DataContext } from "./Context";
+import { ToastContext } from "./Context";
 
 import productMap from "./helpers/productMap";
 
@@ -132,8 +133,29 @@ const toggleActionsMenu = menuID => {
 };
 
 const OrdersItemComp = ({ order, id, checked, setChecked }) => {
+  const [deleteOrderMutate] = useMutation(
+    id => ky.delete(`https://rc-inventory.herokuapp.com/order/cancelled/${id}`),
+    {
+      onSuccess: async () => {
+        await queryCache.refetchQueries("updateID");
+        await queryCache.refetchQueries("Order");
+        setToastInfo({
+          triggered: true,
+          message: "Successfully deleted order.",
+          persistent: false,
+          otherFuncs: []
+        });
+      },
+      onError: () =>
+        setToastInfo({
+          triggered: true,
+          message: "Failed to delete order.",
+          persistent: false,
+          otherFuncs: []
+        })
+    }
+  );
   const setToastInfo = useContext(ToastContext);
-  const { orders, setOrders } = useContext(DataContext);
 
   const [orderEditOpen, setOrderEditOpen] = useState(false);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
@@ -144,27 +166,6 @@ const OrdersItemComp = ({ order, id, checked, setChecked }) => {
       setChecked([...checked, order]);
     } else {
       setChecked(checked.filter(o => o.orderID !== order.orderID));
-    }
-  };
-
-  const deleteOrder = async id => {
-    try {
-      await ky.delete(
-        `https://rc-inventory.herokuapp.com/order/cancelled/${id}`
-      );
-
-      setOrders(orders.filter(d => d.orderID !== id));
-      setToastInfo({
-        triggered: true,
-        message: "Successfully deleted order.",
-        persistent: false
-      });
-    } catch {
-      setToastInfo({
-        triggered: true,
-        message: "Failed to delete order.",
-        persistent: false
-      });
     }
   };
 
@@ -221,7 +222,7 @@ const OrdersItemComp = ({ order, id, checked, setChecked }) => {
                   <ConfirmationModal
                     message={`Are you sure you want to delete order #${order.orderID}?`}
                     positiveFunc={() => {
-                      deleteOrder(order.orderID);
+                      deleteOrderMutate(order.orderID);
                       setConfirmationOpen(false);
                     }}
                     negativeFunc={() => setConfirmationOpen(false)}

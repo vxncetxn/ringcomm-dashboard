@@ -1,8 +1,9 @@
 import React, { useState, useContext } from "react";
 import styled from "styled-components";
 import ky from "ky";
+import { useMutation, queryCache } from "react-query";
 
-import { ToastContext, DataContext } from "./Context";
+import { ToastContext } from "./Context";
 
 import Modal from "./components/Modal";
 import Input from "./components/Input";
@@ -49,7 +50,6 @@ const AddFinanceModal = styled(Modal)`
 
 const AddFinanceModalComp = ({ dismissFunc }) => {
   const setToastInfo = useContext(ToastContext);
-  const { transactions, setTransactions } = useContext(DataContext);
 
   const [changesMade, setChangesMade] = useState(false);
   const [titleField, setTitleField] = useState("");
@@ -58,19 +58,16 @@ const AddFinanceModalComp = ({ dismissFunc }) => {
   const [amountField, setAmountField] = useState("");
   const [uploadedRefs, setUploadedRefs] = useState([]);
 
-  const [buttonState, setButtonState] = useState("default");
+  const [addFinanceMutate, { status: addFinanceStatus }] = useMutation(
+    () => {
+      const newReference = uploadedRefs.map(d => {
+        return {
+          data: d.slice(d.indexOf(",") + 1),
+          content_type: d.slice(5, d.indexOf(";"))
+        };
+      });
 
-  const addFinance = async () => {
-    const newReference = await uploadedRefs.map(d => {
-      return {
-        data: d.slice(d.indexOf(",") + 1),
-        content_type: d.slice(5, d.indexOf(";"))
-      };
-    });
-
-    setButtonState("loading");
-    try {
-      await ky.post(`https://rc-inventory.herokuapp.com/finance/insert`, {
+      return ky.post(`https://rc-inventory.herokuapp.com/finance/insert`, {
         json: {
           finance: {
             title: titleField,
@@ -81,34 +78,30 @@ const AddFinanceModalComp = ({ dismissFunc }) => {
           }
         }
       });
-
-      setTransactions([
-        ...transactions,
-        {
-          title: titleField,
-          submitter: submitterField,
-          amount: parseFloat(amountField),
-          details: detailsField,
-          references: uploadedRefs
-        }
-      ]);
-
-      dismissFunc();
-      setToastInfo({
-        triggered: true,
-        message: "Successfully added transaction.",
-        persistent: false
-      });
-    } catch (err) {
-      console.log(err);
-      dismissFunc();
-      setToastInfo({
-        triggered: true,
-        message: "Failed to add transaction.",
-        persistent: false
-      });
+    },
+    {
+      onSuccess: async () => {
+        await queryCache.refetchQueries("updateID");
+        await queryCache.refetchQueries("Finance");
+        dismissFunc();
+        setToastInfo({
+          triggered: true,
+          message: "Successfully added transaction.",
+          persistent: false,
+          otherFuncs: []
+        });
+      },
+      onError: () => {
+        dismissFunc();
+        setToastInfo({
+          triggered: true,
+          message: "Failed to add transaction.",
+          persistent: false,
+          otherFuncs: []
+        });
+      }
     }
-  };
+  );
 
   return (
     <AddFinanceModal dismissFunc={dismissFunc}>
@@ -166,17 +159,19 @@ const AddFinanceModalComp = ({ dismissFunc }) => {
         </div>
       </div>
       <div>
-        {buttonState === "default" ? (
+        {addFinanceStatus === "loading" ? (
+          <Spinner />
+        ) : (
           <>
             {changesMade ? (
-              <DecisionButton onClick={addFinance}>Add Record</DecisionButton>
+              <DecisionButton onClick={addFinanceMutate}>
+                Add Record
+              </DecisionButton>
             ) : (
               <DecisionButton disabled>Add Record</DecisionButton>
             )}
             <DecisionButton onClick={dismissFunc}>Cancel</DecisionButton>
           </>
-        ) : (
-          <Spinner />
         )}
       </div>
     </AddFinanceModal>
